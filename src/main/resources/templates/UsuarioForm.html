@@ -7,6 +7,8 @@
         <!-- Bootstrap & Icons -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
         <style>
             :root{
@@ -114,20 +116,21 @@
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Apellido paterno</label>
                             <input id="apep" class="form-control solo-letras no-paste"
-                                   th:field="*{Apellidopaterno}" placeholder="Apellido Paterno">
-                            <span class="text-danger"
-                                  th:if="${#fields.hasErrors('Apellidopaterno')}"
-                                  th:errors="*{Apellidopaterno}">
-                                ERRORR                </span>  
-
-
-                            <!-- maxlength="50" required
+                                   th:field="*{Apellidopaterno}" placeholder="Apellido Paterno" maxlength="50" required
                                    onkeypress="return SoloLetras(event,this)"
                                    oninput="NombreVal(this)"
-                                   onblur="NombreVal(this)"--> 
+                                   onblur="NombreVal(this)"> <span class="error-msg"></span>
+                            
+                           <!-- <span class="text-danger"
+                                  th:if="${#fields.hasErrors('Apellidopaterno')}"
+                                  th:errors="*{Apellidopaterno}">
+                                ERRORR                </span>   -->
 
 
-                            <!--    <span class="error-msg"></span> -->
+                            <!-- --> 
+
+
+                            <!--     -->
                         </div>
 
                         <div class="col-md-4">
@@ -191,11 +194,19 @@
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Email</label>
                             <input id="email" class="form-control no-paste" type="email" th:field="*{email}"
-                                   placeholder="Email" > <span class="text-danger"
+                                   placeholder="Email" maxlength="80" required
+                                   onkeydown="return SinEspacios(event)"
+                                   oninput="EmailVal(this)"
+                                   onblur="EmailVal(this, true)">
+                            <span class="error-msg"></span> 
                                    
+                                   
+                                   
+                                  
+                            <!--  > <span class="text-danger"
+
                                    th:if="${#fields.hasErrors('Email')}"
-                                   th:errors="*{Email}"> error Message  </span>
-                            <!--  -->
+                                   th:errors="*{Email}"> error Message  </span> -->
 
 
 
@@ -316,28 +327,49 @@
                         </div>
 
 
+
+
+
                         <div class="col-md-4">
                             <label class="form-label fw-bold">País</label>
-                            <select id="pais"
-                                    class="form-select"
-                                    aria-label="Default select example"                                    
-
-                                    >
+                            <select id="paisddl" class="form-select" aria-label="Default select example">
                                 <option value="" selected disabled>-- Selecciona un país --</option>
                                 <option th:each="pais : ${paises}"
                                         th:value="${pais.IdPais}"
-                                        th:text="${pais.nombre}"
-
-                                        >
-
+                                        th:text="${pais.nombre}">
                                 </option>
                             </select>
                             <span class="error-msg"></span>
                         </div>
 
+                        <div class="col-md-3">
+                            <label for="estadoddl" class="form-label fw-bold">Estado</label>
+                            <select id="estadoddl" class="form-select" aria-label="Default select example">
+                                <option value="0" selected>Selecciona un estado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="municipioddl" class="form-label fw-bold">Municipio</label>
+                            <select id="municipioddl" class="form-select" aria-label="Default select example">
+                                <option value="0" selected>Selecciona un municipio</option>
+                            </select>
+                        </div>
 
+                        <div class="col-md-3">
 
+                            <label for="coloniaddl" class="form-label fw-bold">Colonia</label>
+                            <select id="coloniaddl" class="form-select" aria-label="Default select example">
+                                <option value=0 selected>Selecciona una colonia</option>
+                            </select>
 
+                        </div>
+                        <div class="col-md-3">
+                            <label for="CodigoPostal" class="form-label fw-bold">Codigo Postal</label>
+                            <input id="CodigoPostal" type="text" class="form-control"
+                                   placeholder="Codigo Postal"
+                                   th:field="*{direcciones[0].colonia.codigoPostal}"
+                                   readonly>
+                        </div>
 
                     </div>  
 
@@ -637,6 +669,113 @@
                     e.stopPropagation();
                 }
             });
+
+
+            $(document).ready(function () {
+                console.log("Cliente listo");
+
+                // Evento para País → Estado
+                $("#paisddl").change(function () {
+                    let idPais = $(this).val();
+                    if (!idPais || idPais === "0")
+                        return;
+
+                    $.ajax({
+                        type: "GET",
+                        url: "/usuario/getEstadosByPais/" + idPais,
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.correct) {
+                                $("#estadoddl").empty().append("<option value='0' selected>Selecciona un estado</option>");
+                                $.each(data.objects, function (i, estado) {
+                                    $("#estadoddl").append("<option value='" + estado.idEstado + "'>" + estado.nombre + "</option>");
+                                });
+                            } else {
+                                console.warn("No se encontraron estados para el país seleccionado.");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            console.error("Error al obtener estados:", textStatus, errorThrown);
+                            alert("Ocurrió un error al cargar los estados.");
+                        }
+                    });
+                });
+
+                // Evento para Estado → Municipio
+                $("#estadoddl").change(function () {
+                    let idEstado = $(this).val();
+                    if (!idEstado || idEstado === "0")
+                        return;
+
+                    $.ajax({
+                        type: "GET",
+                        url: "/usuario/MunicipiosGetByIdEstado/" + idEstado,
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.correct) {
+                                $("#municipioddl").empty().append("<option value='0' selected>Selecciona un municipio</option>");
+                                $.each(data.objects, function (i, municipio) {
+                                    $("#municipioddl").append("<option value='" + municipio.idMunicipio + "'>" + municipio.nombre + "</option>");
+                                });
+                            } else {
+                                console.warn("No se encontraron municipios para el estado seleccionado.");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            console.error("Error al obtener municipios:", textStatus, errorThrown);
+                            alert("Ocurrió un error al cargar los municipios.");
+                        }
+                    });
+                });
+
+
+                $("#municipioddl").change(function () {
+                    let idMunicipio = $(this).val();
+                    // Limpia CP cada vez que cambies municipio
+                    $("#CodigoPostal").val("");
+
+                    if (!idMunicipio || idMunicipio === "0") {
+                        $("#coloniaddl").empty().append("<option value='0' selected>Selecciona una Colonia</option>");
+                        return;
+                    }
+
+                    $.ajax({
+                        type: "GET",
+                        url: "/usuario/ColoniasGetByIdMunicipio/" + idMunicipio,
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.correct) {
+                                $("#coloniaddl").empty().append("<option value='0' selected>Selecciona una Colonia</option>");
+                                $.each(data.objects, function (i, colonia) {
+                                    // inyecta el CP como data attribute
+                                    $("#coloniaddl").append(
+                                            "<option value='" + colonia.idColonia + "' data-cp='" + (colonia.codigoPostal || "") + "'>" +
+                                            colonia.nombre +
+                                            "</option>"
+                                            );
+                                });
+
+                                // Cuando elijan una colonia, poner su CP
+                                $("#coloniaddl").off("change.coloniaCP").on("change.coloniaCP", function () {
+                                    let cp = $(this).find(":selected").data("cp") || "";
+                                    $("#CodigoPostal").val(cp);
+                                });
+                            } else {
+                                console.warn("No se encontraron colonias para el municipio seleccionado.");
+                                $("#coloniaddl").empty().append("<option value='0' selected>Selecciona una Colonia</option>");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            console.error("Error al obtener colonias:", textStatus, errorThrown);
+                            alert("Ocurrió un error al cargar las colonias.");
+                            $("#coloniaddl").empty().append("<option value='0' selected>Selecciona una Colonia</option>");
+                        }
+                    });
+                });
+            });
+
+
+
         </script>
 
     </body>

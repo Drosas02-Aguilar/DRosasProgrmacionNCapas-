@@ -1,5 +1,8 @@
 package com.digis01.DRosasAguilarDamianNCapasProject.Controller;
 
+import com.digis01.DRosasAguilarDamianNCapasProject.DAO.ColoniaDAOImplementation;
+import com.digis01.DRosasAguilarDamianNCapasProject.DAO.EstadoDAOImplementation;
+import com.digis01.DRosasAguilarDamianNCapasProject.DAO.MunicipioDAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.PaisDAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.RolDAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.UsuarioDAOImplementation;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("usuario")
@@ -25,12 +29,22 @@ public class UsuarioController {
 
     @Autowired
     private RolDAOImplementation rolDAOImplementation;
-    
+
     @Autowired
     private UsuarioDAOImplementation usuarioDAOImplementation;
-    
+
     @Autowired
     private PaisDAOImplementation paisDAOImplementation;
+
+    @Autowired
+    private EstadoDAOImplementation estadoDAOImplementation;
+
+    @Autowired
+    private MunicipioDAOImplementation municipioDAOImplementation;
+    
+    @Autowired
+    private ColoniaDAOImplementation coloniaDAOImplementation;
+
 
     @GetMapping
     public String Index(Model model) {
@@ -61,7 +75,7 @@ public class UsuarioController {
     @GetMapping("add") // localhost:8081/alumno/add
     public String add(Model model) {
 
-        model.addAttribute("roles",rolDAOImplementation.GetAllRol().objects);
+        model.addAttribute("roles", rolDAOImplementation.GetAllRol().objects);
         model.addAttribute("Usuario", new Usuario());
         model.addAttribute("paises", paisDAOImplementation.GetAllPais().objects);
 
@@ -84,5 +98,26 @@ public class UsuarioController {
         }
 
     }
+
+    @GetMapping("getEstadosByPais/{IdPais}")
+    @ResponseBody
+    public Result EstadoByidPais(@PathVariable int IdPais) {
+
+        return estadoDAOImplementation.EstadoByidPais(IdPais);
+
+    }
+
+    @GetMapping("MunicipiosGetByIdEstado/{IdEstado}")
+    @ResponseBody
+    public Result municipioByIdEstado(@PathVariable int IdEstado) {
+        return municipioDAOImplementation.MunicipioByidEstado(IdEstado);
+    }
+     @GetMapping("ColoniasGetByIdMunicipio/{IdMunicipio}")
+    @ResponseBody
+    public Result ColoniaGetByIdMunicipio(@PathVariable int IdMunicipio) {
+        return coloniaDAOImplementation.ColoniaByMunicipio(IdMunicipio);
+    }
+    
+    
 
 }
