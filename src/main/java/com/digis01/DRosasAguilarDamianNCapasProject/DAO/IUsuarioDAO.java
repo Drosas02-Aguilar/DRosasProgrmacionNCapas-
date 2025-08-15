@@ -7,5 +7,7 @@ public interface IUsuarioDAO {
 Result GetAll();// metodo abstracto, es decir, no lleva implementación
 Result DireccionesByIdUsuario(int idUsuario);
 Result Add(Usuario usuario); 
+Result update(Usuario usuario);
+Result deleteById(int IdUsuario);
 
 }

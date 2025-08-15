@@ -253,14 +253,14 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
                 callablestatement.setString(15, usuario.direcciones.get(0).getNumeroInterior());
                 callablestatement.setString(16, usuario.direcciones.get(0).getNumeroExterior());
                 callablestatement.setInt(17, usuario.direcciones.get(0).Colonia.getIdColonia());
-                
+
                 int isCorrect = callablestatement.executeUpdate();
-               
-                if(isCorrect == -1){
-                
-                return true;
+
+                if (isCorrect == -1) {
+
+                    return true;
                 }
-                
+
                 return false;
 
             });
@@ -276,6 +276,61 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
 
     }
 
-    
-    
+    @Override
+    public Result update(Usuario usuario) {
+        Result result = new Result();
+        try {
+            jdbcTemplate.execute("CALL USUARIOUPDATE(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (CallableStatementCallback<Boolean>) callablestatement -> {
+                        callablestatement.setInt(1, usuario.getIdUsuario());
+                        callablestatement.setString(2, usuario.getNombre());
+                        callablestatement.setString(3, usuario.getApellidopaterno());
+                        callablestatement.setString(4, usuario.getApellidomaterno());
+                        callablestatement.setString(5, usuario.getUsername());
+                        callablestatement.setString(6, usuario.getEmail());
+                        callablestatement.setString(7, usuario.getPassword());
+                        callablestatement.setDate(8, new java.sql.Date(usuario.getFechaNacimiento().getTime()));
+                        callablestatement.setString(9, usuario.getSexo());
+                        callablestatement.setString(10, usuario.getTelefono());
+                        callablestatement.setString(11, usuario.getCelular());
+                        callablestatement.setString(12, usuario.getCurp());
+                        callablestatement.setString(13, usuario.getTiposangre());
+                        callablestatement.setInt(14, usuario.Rol.getIdRol());
+
+                        callablestatement.execute();
+
+                        result.correct = true;
+                        result.message = "Usuario actualizado correctamente";
+                        return true;
+                    });
+
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
+        return result;
+    }
+
+    @Override
+    public Result deleteById(int IdUsuario) {
+        Result result = new Result();
+        try {
+            jdbcTemplate.execute("CALL UsuarioDeleteById(?)",
+                    (CallableStatementCallback<Boolean>) cs -> {
+                        cs.setInt(1, IdUsuario);
+                        cs.execute();
+
+                        result.correct = true;
+                        return true;
+                    });
+
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
+        return result;
+    }
+
 }

@@ -59,7 +59,11 @@
                 </div>
             </div>
 
-
+            <!-- Mensaje flash (opcional) -->
+            <div th:if="${msg}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${msg}">Operación realizada</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
 
             <!-- Tabla -->
             <div class="card">
@@ -80,7 +84,7 @@
                                     <a th:href="@{/usuario/editarUsuario/{idUsuario}(idUsuario=${usuario.idUsuario})}" class="btn btn-sm btn-warning me-1">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-                                    <a th:href="@{|/usuario/eliminar?id=${usuario.idUsuario}|}" class="btn btn-sm btn-danger"
+                                    <a th:href="@{/usuario/delete/{idUsuario}(idUsuario=${usuario.idUsuario})}" class="btn btn-sm btn-danger"
                                        onclick="return confirm('¿Eliminar al usuario seleccionado?');">
                                         <i class="bi bi-trash"></i>
                                     </a>
@@ -97,7 +101,7 @@
                                                 <span th:text="${usuario.username} ?: 'Sin usuario'">Sin usuario</span>
                                             </div>
                                             <div class="mt-1">
-                                                <!-- Sexo badge con misma paleta -->
+                                                <!-- Sexo -->
                                                 <span class="badge"
                                                       th:classappend="${#strings.equalsIgnoreCase(#strings.trim(usuario.sexo),'M')} ? 'bg-primary' 
                                                       : (${#strings.equalsIgnoreCase(#strings.trim(usuario.sexo),'F')} ? 'bg-danger' : 'text-bg-secondary')"
@@ -143,6 +147,7 @@
                                         <ul class="list-unstyled mb-0">
                                             <li th:each="direccion, iterStat : ${usuario.direcciones}" class="mb-2">
                                                 <span class="fw-bold">[[${iterStat.index + 1}]].</span>
+                                                <!-- Mantengo la notación tal como la tienes para no tocar tu JS/modelo -->
                                                 <span th:text="${direccion.Calle}">Calle</span>
                                                 <span th:if="${direccion.NumeroExterior != null}" th:text="' #'+${direccion.NumeroExterior}"></span>
                                                 <span th:if="${direccion.NumeroInterior != null}" th:text="' Int. '+${direccion.NumeroInterior}"></span>
@@ -174,7 +179,6 @@
                     </table>
                 </div>
             </div>
-
 
         </div>
 

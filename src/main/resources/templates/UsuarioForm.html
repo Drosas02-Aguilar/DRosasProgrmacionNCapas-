@@ -1,783 +1,788 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
-    <head>
-        <meta charset="UTF-8" />
-        <title>Registro de Usuario</title>
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="${mode == 'usuario'} ? 'Editar Usuario' 
+                 : (${mode == 'direccion'} ? (${action == 'add'} ? 'Agregar Dirección' : 'Editar Dirección')
+                 : 'Registrar Usuario')">Formulario</title>
 
-        <!-- Bootstrap & Icons -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+  <style>
+    :root{
+      --grad-a:#0d6efd;
+      --grad-b:#6610f2;
+      --card-shadow:0 10px 28px rgba(0,0,0,.07);
+    }
+    body{ background:#f6f7fb }
+    .hero{
+      background: radial-gradient(1000px 500px at top left, #ffffff10, transparent),
+                 linear-gradient(90deg,var(--grad-a),var(--grad-b));
+      color:#fff; border-radius:1.25rem; padding:1.75rem 1.5rem; margin:1rem 0 2rem; box-shadow:var(--card-shadow);
+    }
+    .card{ border:0; border-radius:1.25rem; box-shadow:var(--card-shadow) }
+    .section-title{ display:flex; align-items:center; gap:.5rem; margin:0 0 1rem }
+    .section-title .bi{ color:var(--grad-a) }
+    .error-msg{ display:block; margin-top:.35rem; font-size:.85rem; color:#dc3545 }
+    .correct{ border-color:#28a745 !important; box-shadow:0 0 0 .2rem #28a74522 !important }
+    .error{ border-color:#dc3545 !important; box-shadow:0 0 0 .2rem #dc354522 !important }
+    .btn-gradient{ background:linear-gradient(90deg,var(--grad-a),var(--grad-b)); color:#fff; border:none }
+    .btn-gradient:hover{ filter:brightness(.96); color:#fff }
+    .action-bar{ position:sticky; bottom:0; background:#fff; z-index:1000; border-top:1px solid #eef0f3; backdrop-filter:blur(6px) }
+  </style>
+</head>
+<body>
+<div class="container">
 
-        <style>
-            :root{
-                --grad-a:#0d6efd;
-                --grad-b:#6610f2;
-                --card-shadow:0 10px 28px rgba(0,0,0,.07);
-            }
-            body{
-                background:#f6f7fb
-            }
-            .hero{
-                background: radial-gradient(1000px 500px at top left, #ffffff10, transparent),
-                    linear-gradient(90deg,var(--grad-a),var(--grad-b));
-                color:#fff;
-                border-radius:1.25rem;
-                padding:1.75rem 1.5rem;
-                margin:1rem 0 2rem;
-                box-shadow:var(--card-shadow);
-            }
-            .card{
-                border:0;
-                border-radius:1.25rem;
-                box-shadow:var(--card-shadow)
-            }
-            .section-title{
-                display:flex;
-                align-items:center;
-                gap:.5rem;
-                margin:0 0 1rem
-            }
-            .section-title .bi{
-                color:var(--grad-a)
-            }
-            .input-icon{
-                position:relative
-            }
-            .input-icon .bi{
-                position:absolute;
-                left:.75rem;
-                top:50%;
-                transform:translateY(-50%);
-                opacity:.6;
-                pointer-events:none
-            }
-            .input-icon .form-control,.input-icon .form-select{
-                padding-left:2.25rem
-            }
-            .error-msg{
-                display:block;
-                margin-top:.35rem;
-                font-size:.85rem;
-                color:#dc3545
-            }
-            .correct{
-                border-color:#28a745 !important;
-                box-shadow:0 0 0 .2rem #28a74522 !important
-            }
-            .error{
-                border-color:#dc3545 !important;
-                box-shadow:0 0 0 .2rem #dc354522 !important
-            }
-            .btn-gradient{
-                background:linear-gradient(90deg,var(--grad-a),var(--grad-b));
-                color:#fff;
-                border:none
-            }
-            .btn-gradient:hover{
-                filter:brightness(.96);
-                color:#fff
-            }
-            .action-bar{
-                position:sticky;
-                bottom:0;
-                background:#fff;
-                z-index:1000;
-                border-top:1px solid #eef0f3;
-                backdrop-filter:blur(6px)
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <!-- HERO -->
-            <div class="hero">
-                <h1 class="h4 mb-1"><i class="bi bi-person-plus me-2"></i>Registro de Usuario</h1>
-                <p class="mb-0 opacity-75">Completa el formulario para agregar un nuevo usuario.</p>
-            </div>
+  <!-- HERO -->
+  <div class="hero">
+    <h1 class="h4 mb-1"
+        th:text="${
+           mode == 'full' ? 'Registro de Usuario'
+         : (mode == 'usuario' ? 'Editar información de Usuario'
+         : (action == 'add' ? 'Agregar Dirección' : 'Editar Dirección'))
+        }">Formulario</h1>
+    <p class="mb-0 opacity-75"
+       th:text="${
+         mode == 'full' ? 'Completa el formulario para agregar un nuevo usuario.'
+       : (mode == 'usuario' ? 'Actualiza los datos del usuario.'
+       : 'Completa los datos de la dirección.')
+       }">Descripción</p>
+  </div>
 
-            <form id="registroForm" method="post" th:object="${Usuario}" th:action="@{/usuario/add}" novalidate>
-                <!-- DATOS PERSONALES -->
-                <div class="card p-4 mb-4">
-                    <h5 class="section-title"><i class="bi bi-person-lines-fill"></i><span>Datos personales</span></h5>
-                    <div class="row g-3">
+  <!-- ===================== FORM USUARIO (FULL/EDIT) ===================== -->
+  <form th:if="${mode == 'full' or mode == 'usuario'}"
+        th:object="${Usuario}"
+        method="post"
+        th:action="${mode == 'full'} ? @{/usuario/add} : @{/usuario/update}"
+        id="formUsuario"
+        novalidate>
 
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Nombre</label>
-                            <input id="nombre" class="form-control solo-letras no-paste"
-                                   th:field="*{nombre}" placeholder="Nombre" maxlength="50" required
-                                   onkeypress="return SoloLetras(event, this)"
-                                   oninput="NombreVal(this)"
-                                   onblur="NombreVal(this)">
-                            <span class="error-msg"></span>
-                        </div> 
+    <input type="hidden" th:field="*{idUsuario}"/>
 
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Apellido paterno</label>
-                            <input id="apep" class="form-control solo-letras no-paste"
-                                   th:field="*{Apellidopaterno}" placeholder="Apellido Paterno" maxlength="50" required
-                                   onkeypress="return SoloLetras(event,this)"
-                                   oninput="NombreVal(this)"
-                                   onblur="NombreVal(this)"> <span class="error-msg"></span>
-                            
-                           <!-- <span class="text-danger"
-                                  th:if="${#fields.hasErrors('Apellidopaterno')}"
-                                  th:errors="*{Apellidopaterno}">
-                                ERRORR                </span>   -->
+    <!-- DATOS PERSONALES -->
+    <div class="card p-4 mb-4">
+      <h5 class="section-title"><i class="bi bi-person-lines-fill"></i><span>Datos personales</span></h5>
+      <div class="row g-3">
 
-
-                            <!-- --> 
-
-
-                            <!--     -->
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Apellido materno</label>
-                            <input id="apem" class="form-control solo-letras no-paste"
-                                   th:field="*{apellidomaterno}" placeholder="Apellido materno" maxlength="50"
-                                   onkeypress="return SoloLetras(event, this)"
-                                   oninput="NombreOpcVal(this)"
-                                   onblur="NombreOpcVal(this)">
-                            <span class="error-msg"></span>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Sexo</label>
-                            <select id="sexo" class="form-select" th:field="*{sexo}" required
-                                    onchange="SexoVal(this)">
-                                <option value="" disabled selected>Selecciona…</option>
-                                <option value="M">Masculino</option>
-                                <option value="F">Femenino</option>
-                            </select>
-                            <span class="error-msg"></span>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">CURP</label>
-                            <input id="curp" class="form-control text-uppercase no-paste"
-                                   th:field="*{curp}" placeholder="CURP" maxlength="18" required
-                                   onkeydown="return SinEspacios(event)"
-                                   oninput="CurpVal(this)"
-                                   onblur="CurpVal(this, true)">
-                            <span class="error-msg"></span>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Fecha de nacimiento</label>
-                            <input id="fnac" class="form-control" type="date"
-                                   th:field="*{fechaNacimiento}" required
-                                   oninput="FechaVal(this)"
-                                   onblur="FechaVal(this)">
-                            <span class="error-msg"></span>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- ACCESO Y CONTACTO -->
-                <div class="card p-4 mb-4">
-                    <h5 class="section-title"><i class="bi bi-shield-lock"></i><span>Acceso y contacto</span></h5>
-                    <div class="row g-3">
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Username</label>
-                            <input id="username" class="form-control no-paste" th:field="*{username}"
-                                   placeholder="Username" maxlength="30" required
-                                   onkeydown="return UsernameNoEmpieceNumero(event, this)"
-                                   oninput="UsernameVal(this)"
-                                   onblur="UsernameVal(this)">
-                            <span class="error-msg"></span>
-                        </div> 
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Email</label>
-                            <input id="email" class="form-control no-paste" type="email" th:field="*{email}"
-                                   placeholder="Email" maxlength="80" required
-                                   onkeydown="return SinEspacios(event)"
-                                   oninput="EmailVal(this)"
-                                   onblur="EmailVal(this, true)">
-                            <span class="error-msg"></span> 
-                                   
-                                   
-                                   
-                                  
-                            <!--  > <span class="text-danger"
-
-                                   th:if="${#fields.hasErrors('Email')}"
-                                   th:errors="*{Email}"> error Message  </span> -->
-
-
-
-
-                            <!--maxlength="80" required
-                                   onkeydown="return SinEspacios(event)"
-                                   oninput="EmailVal(this)"
-                                   onblur="EmailVal(this, true)">
-                            <span class="error-msg"></span> -->
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Contraseña</label>
-                            <input id="password" class="form-control no-paste" type="password" th:field="*{password}"
-                                   placeholder="Contraseña" required
-                                   oninput="PassVal(this)"
-                                   onblur="PassVal(this)">
-                            <span class="error-msg"></span>
-                        </div>
-
-                    </div>
-
-                    <div class="row g-3 mt-1">
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Teléfono (10 dígitos)</label>
-                            <input id="tel" class="form-control no-paste" th:field="*{telefono}"
-                                   placeholder="Teléfono" inputmode="numeric" maxlength="10" required
-                                   onkeydown="return SoloNumeros(event)"
-                                   oninput="TelVal(this)"
-                                   onblur="TelVal(this)">
-                            <span class="error-msg"></span>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Celular (10 dígitos)</label>
-                            <input id="cel" class="form-control no-paste" th:field="*{celular}"
-                                   placeholder="Celular" inputmode="numeric" maxlength="10" required
-                                   onkeydown="return SoloNumeros(event)"
-                                   oninput="TelVal(this)"
-                                   onblur="TelVal(this)">
-                            <span class="error-msg"></span>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Tipo de sangre</label>
-                            <input id="sangre" class="form-control no-paste" th:field="*{tiposangre}"
-                                   placeholder="Ej. O+, A-" maxlength="5"
-                                   oninput="SangreVal(this)"
-                                   onblur="SangreVal(this)">
-                            <span class="error-msg"></span>
-                        </div>
-                    </div>
-
-                    <div class="row g-3 mt-1">
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">ID Rol</label>
-
-                            <!--   <input id="rol" class="form-control no-paste" type="text" th:field="*{rol.idRol}"
-                               placeholder="ID Rol"> -->
-
-                            <select id="rolSelect"
-                                    class="form-select"
-                                    aria-label="Default select example"
-                                    oninput="IdPosVal(this)"
-                                    onblur="IdPosVal(this)">
-                                <option value="0" selected>Open this select menu</option>
-                                <option th:each="rol : ${roles}"
-                                        th:text="${rol.nombre}"
-                                        th:value="${rol.IdRol}" 
-                                        th:field="*{rol.idRol}" >One</option>
-                            </select>
-
-                            <span class="error-msg"></span>
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- DIRECCIÓN -->
-
-                <div class="card p-4 mb-5">
-                    <h5 class="section-title"><i class="bi bi-geo-alt"></i><span>Dirección</span></h5>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Calle</label>
-                            <input id="calle" class="form-control no-paste"
-                                   th:field="*{direcciones[0].calle}" placeholder="Calle" maxlength="80" required
-                                   oninput="CalleVal(this)"
-                                   onblur="CalleVal(this)">
-                            <span class="error-msg"></span>
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label fw-bold">Número exterior</label>
-                            <input id="nExt" class="form-control no-paste"
-                                   th:field="*{direcciones[0].numeroExterior}" placeholder="Número exterior" maxlength="10"
-                                   oninput="PuertaVal(this)"
-                                   onblur="PuertaVal(this)">
-                            <span class="error-msg"></span>
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label fw-bold">Número interior</label>
-                            <input id="nInt" class="form-control no-paste"
-                                   th:field="*{direcciones[0].numeroInterior}" placeholder="Número interior" maxlength="10"
-                                   oninput="PuertaVal(this)"
-                                   onblur="PuertaVal(this)">
-                            <span class="error-msg"></span>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">ID Colonia</label>
-                            <input id="colonia" class="form-control no-paste" type="number"
-                                   th:field="*{direcciones[0].colonia.idColonia}" placeholder="ID Colonia" min="1" required
-                                   oninput="IdPosVal(this)"
-                                   onblur="IdPosVal(this)">
-                            <span class="error-msg"></span>
-                        </div>
-
-
-
-
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">País</label>
-                            <select id="paisddl" class="form-select" aria-label="Default select example">
-                                <option value="" selected disabled>-- Selecciona un país --</option>
-                                <option th:each="pais : ${paises}"
-                                        th:value="${pais.IdPais}"
-                                        th:text="${pais.nombre}">
-                                </option>
-                            </select>
-                            <span class="error-msg"></span>
-                        </div>
-
-                        <div class="col-md-3">
-                            <label for="estadoddl" class="form-label fw-bold">Estado</label>
-                            <select id="estadoddl" class="form-select" aria-label="Default select example">
-                                <option value="0" selected>Selecciona un estado</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="municipioddl" class="form-label fw-bold">Municipio</label>
-                            <select id="municipioddl" class="form-select" aria-label="Default select example">
-                                <option value="0" selected>Selecciona un municipio</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-3">
-
-                            <label for="coloniaddl" class="form-label fw-bold">Colonia</label>
-                            <select id="coloniaddl" class="form-select" aria-label="Default select example">
-                                <option value=0 selected>Selecciona una colonia</option>
-                            </select>
-
-                        </div>
-                        <div class="col-md-3">
-                            <label for="CodigoPostal" class="form-label fw-bold">Codigo Postal</label>
-                            <input id="CodigoPostal" type="text" class="form-control"
-                                   placeholder="Codigo Postal"
-                                   th:field="*{direcciones[0].colonia.codigoPostal}"
-                                   readonly>
-                        </div>
-
-                    </div>  
-
-
-                </div>
-
-                <!-- Acciones -->
-                <div class="action-bar py-3">
-                    <div class="container d-flex justify-content-center gap-2">
-                        <button type="submit" class="btn btn-gradient btn-lg">
-                            <i class="bi bi-check2-circle me-1"></i> Guardar
-                        </button>
-                        <a th:href="@{/usuario}" class="btn btn-outline-secondary btn-lg">
-                            <i class="bi bi-arrow-left me-1"></i> Cancelar
-                        </a>
-                    </div>
-                </div>
-
-
-            </form>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Nombre</label>
+          <input id="nombre" class="form-control solo-letras no-paste"
+                 th:field="*{nombre}" placeholder="Nombre" maxlength="50" required
+                 onkeypress="return SoloLetras(event, this)"
+                 oninput="NombreVal(this)"
+                 onblur="NombreVal(this)">
+          <span class="error-msg"></span>
         </div>
 
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Apellido paterno</label>
+          <input id="apep" class="form-control solo-letras no-paste"
+                 th:field="*{Apellidopaterno}" placeholder="Apellido Paterno" maxlength="50" required
+                 onkeypress="return SoloLetras(event,this)"
+                 oninput="NombreVal(this)"
+                 onblur="NombreVal(this)">
+          <span class="error-msg"></span>
+        </div>
 
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Apellido materno</label>
+          <input id="apem" class="form-control solo-letras no-paste"
+                 th:field="*{apellidomaterno}" placeholder="Apellido materno" maxlength="50"
+                 onkeypress="return SoloLetras(event, this)"
+                 oninput="NombreOpcVal(this)"
+                 onblur="NombreOpcVal(this)">
+          <span class="error-msg"></span>
+        </div>
 
-        <script>
-            // VALIDACIONES SIMPLES POR EVENTO  
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Sexo</label>
+          <select id="sexo" class="form-select" th:field="*{sexo}" required
+                  onchange="SexoVal(this)">
+            <option value="" disabled>Selecciona…</option>
+            <option value="M">Masculino</option>
+            <option value="F">Femenino</option>
+          </select>
+          <span class="error-msg"></span>
+        </div>
 
-            // Bloquear copiar/pegar/cortar/contextmenu en .no-paste
-            document.addEventListener('DOMContentLoaded', function () {
-                document.querySelectorAll('.no-paste').forEach(function (el) {
-                    ['paste', 'copy', 'cut', 'contextmenu'].forEach(function (ev) {
-                        el.addEventListener(ev, function (e) {
-                            e.preventDefault();
-                        });
-                    });
-                });
-                // Max fecha = hoy
-                var fnac = document.getElementById('fnac');
-                if (fnac) {
-                    fnac.setAttribute('max', new Date().toISOString().split('T')[0]);
-                }
-            });
+        <div class="col-md-4">
+          <label class="form-label fw-bold">CURP</label>
+          <input id="curp" class="form-control text-uppercase no-paste"
+                 th:field="*{curp}" placeholder="CURP" maxlength="18" required
+                 onkeydown="return SinEspacios(event)"
+                 oninput="CurpVal(this)"
+                 onblur="CurpVal(this, true)">
+          <span class="error-msg"></span>
+        </div>
 
-            // Utilidad mínima local (mostrar mensaje junto al input)
-            function Msg(input, ok, msgOk, msgErr) {
-                var span = input.nextElementSibling;
-                while (span && !span.classList.contains('error-msg'))
-                    span = span.nextElementSibling;
-                input.classList.toggle('correct', !!ok);
-                input.classList.toggle('error', !ok);
-                if (span) {
-                    span.textContent = ok ? (msgOk || '') : (msgErr || 'Inválido');
-                }
-            }
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Fecha de nacimiento</label>
+          <input id="fnac" class="form-control" type="date"
+                 th:field="*{fechaNacimiento}" required
+                 oninput="FechaVal(this)"
+                 onblur="FechaVal(this)">
+          <span class="error-msg"></span>
+        </div>
 
-            // Solo letras (teclado)
-            function SoloLetras(e, input) {
-                var k = e.key;
-                var especiales = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End', ' '];
-                if (especiales.indexOf(k) !== -1)
-                    return true;
-                var letra = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]$/.test(k);
-                if (!letra) {
-                    e.preventDefault();
-                    if (input) {
-                        input.classList.add('error');
-                        var span = input.nextElementSibling;
-                        if (span && span.classList.contains('error-msg'))
-                            span.textContent = 'Solo letras';
-                    }
-                    return false;
-                }
-                return true;
-            }
+      </div>
+    </div>
 
-            // Nombres requeridos (con espacios)
-            function NombreVal(input) {
-                var v = (input.value || '').trim();
-                var ok = v.length > 0 && v.length <= 50 && /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/.test(v);
-                Msg(input, ok, 'OK', 'Solo letras y espacios (máx. 50)');
-            }
+    <!-- ACCESO Y CONTACTO -->
+    <div class="card p-4 mb-4">
+      <h5 class="section-title"><i class="bi bi-shield-lock"></i><span>Acceso y contacto</span></h5>
+      <div class="row g-3">
 
-            // Apellido materno opcional
-            function NombreOpcVal(input) {
-                var v = (input.value || '').trim();
-                var ok = v === '' || (v.length <= 50 && /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/.test(v));
-                Msg(input, ok, v === '' ? 'Opcional' : 'OK', 'Solo letras y espacios (máx. 50)');
-            }
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Username</label>
+          <input id="username" class="form-control no-paste" th:field="*{username}"
+                 placeholder="Username" maxlength="30" required
+                 onkeydown="return UsernameNoEmpieceNumero(event, this)"
+                 oninput="UsernameVal(this)"
+                 onblur="UsernameVal(this)">
+          <span class="error-msg"></span>
+        </div>
 
-            // Evitar espacios con teclado (email/curp)
-            function SinEspacios(e) {
-                if (e.key === ' ') {
-                    e.preventDefault();
-                    return false;
-                }
-                return true;
-            }
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Email</label>
+          <input id="email" class="form-control no-paste" type="email" th:field="*{email}"
+                 placeholder="Email" maxlength="80" required
+                 onkeydown="return SinEspacios(event)"
+                 oninput="EmailVal(this)"
+                 onblur="EmailVal(this, true)">
+          <span class="error-msg"></span>
+        </div>
 
-            // Sexo
-            function SexoVal(sel) {
-                var ok = !!sel.value;
-                Msg(sel, ok, 'OK', 'Selecciona sexo');
-            }
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Contraseña</label>
+          <input id="password" class="form-control no-paste" type="password" th:field="*{password}"
+                 placeholder="Contraseña" required
+                 oninput="PassVal(this)"
+                 onblur="PassVal(this)">
+          <span class="error-msg"></span>
+        </div>
 
-            // CURP (mayúsculas, sin espacios/ni símbolos)
-            function CurpVal(input, estricto) {
-                input.value = (input.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 18);
-                var ok = /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/.test(input.value);
-                if (estricto) {
-                    Msg(input, ok, 'OK', 'CURP inválida');
-                } else {
-                    Msg(input, (input.value === '' || ok), input.value === '' ? 'Requerido' : 'OK', 'CURP inválida');
-                }
-            }
+      </div>
 
-            // Fecha no futura
-            function FechaVal(input) {
-                var hoy = new Date().toISOString().split('T')[0];
-                var ok = !!input.value && input.value <= hoy;
-                Msg(input, ok, 'OK', 'No puede ser futura');
-            }
+      <div class="row g-3 mt-1">
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Teléfono (10 dígitos)</label>
+          <input id="tel" class="form-control no-paste" th:field="*{telefono}"
+                 placeholder="Teléfono" inputmode="numeric" maxlength="10" required
+                 onkeydown="return SoloNumeros(event)"
+                 oninput="TelVal(this)"
+                 onblur="TelVal(this)">
+          <span class="error-msg"></span>
+        </div>
 
-            // Username: 4-30, letras/números
-            function UsernameNoEmpieceNumero(e, input) {
-                var pos = input.selectionStart || 0;
-                if (pos === 0 && /^\d$/.test(e.key)) {
-                    e.preventDefault();
-                    return false;
-                }
-                return true;
-            }
-            function UsernameVal(input) {
-                var v = (input.value || '').trim();
-                if (/^\d/.test(v)) {
-                    v = v.replace(/^\d+/, '');
-                    input.value = v;
-                }
-                var ok = /^[A-Za-z0-9_]{4,30}$/.test(v);
-                Msg(input, ok, 'OK', '4–30, letras/números/_');
-            }
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Celular (10 dígitos)</label>
+          <input id="cel" class="form-control no-paste" th:field="*{celular}"
+                 placeholder="Celular" inputmode="numeric" maxlength="10" required
+                 onkeydown="return SoloNumeros(event)"
+                 oninput="TelVal(this)"
+                 onblur="TelVal(this)">
+          <span class="error-msg"></span>
+        </div>
 
-            // Email
-            function EmailVal(input, estricto) {
-                input.value = (input.value || '').replace(/\s+/g, '').trim();
-                var rx = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-                var v = input.value;
-                var ok = estricto ? rx.test(v) : (v === '' || rx.test(v));
-                Msg(input, ok, 'OK', v === '' ? 'Requerido' : 'Email inválido');
-            }
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Tipo de sangre</label>
+          <input id="sangre" class="form-control no-paste" th:field="*{tiposangre}"
+                 placeholder="Ej. O+, A-" maxlength="5"
+                 oninput="SangreVal(this)"
+                 onblur="SangreVal(this)">
+          <span class="error-msg"></span>
+        </div>
+      </div>
 
+      <div class="row g-3 mt-1">
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Rol</label>
+          <select id="rolSelect"
+                  class="form-select"
+                  th:field="*{rol.idRol}"
+                  oninput="IdPosVal(this)"
+                  onblur="IdPosVal(this)">
+            <option value="0" disabled>Selecciona un rol</option>
+            <option th:each="rol : ${roles}"
+                    th:text="${rol.nombre}"
+                    th:value="${rol.idRol}">Rol</option>
+          </select>
+          <span class="error-msg"></span>
+        </div>
+      </div>
+    </div>
 
+    <!-- DIRECCIÓN (SOLO cuando mode == 'full') -->
+    <div class="card p-4 mb-5" th:if="${mode == 'full'}">
+      <h5 class="section-title"><i class="bi bi-geo-alt"></i><span>Dirección</span></h5>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Calle</label>
+          <input id="calle" class="form-control no-paste"
+                 th:field="*{direcciones[0].calle}" placeholder="Calle" maxlength="80" required
+                 oninput="CalleVal(this)"
+                 onblur="CalleVal(this)">
+          <span class="error-msg"></span>
+        </div>
 
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Número exterior</label>
+          <input id="nExt" class="form-control no-paste"
+                 th:field="*{direcciones[0].numeroExterior}" placeholder="Número exterior" maxlength="10"
+                 oninput="PuertaVal(this)"
+                 onblur="PuertaVal(this)">
+          <span class="error-msg"></span>
+        </div>
 
-            // Password: mínimo 8, con letra y número
-            function PassVal(input) {
-                var ok = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(input.value || '');
-                Msg(input, ok, 'OK', 'Mín. 8, letra y número');
-            }
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Número interior</label>
+          <input id="nInt" class="form-control no-paste"
+                 th:field="*{direcciones[0].numeroInterior}" placeholder="Número interior" maxlength="10"
+                 oninput="PuertaVal(this)"
+                 onblur="PuertaVal(this)">
+          <span class="error-msg"></span>
+        </div>
 
-            // Solo números en teclado (tel/cel)
-            function SoloNumeros(e) {
-                var permitidas = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
-                if (permitidas.indexOf(e.key) !== -1)
-                    return true;
-                if (e.key.length === 1 && !/\d/.test(e.key)) {
-                    e.preventDefault();
-                    return false;
-                }
-                return true;
-            }
+        <div class="col-md-4">
+          <label class="form-label fw-bold">ID Colonia</label>
+          <input id="colonia" class="form-control no-paste" type="number"
+                 th:field="*{direcciones[0].colonia.idColonia}" placeholder="ID Colonia" min="1" required
+                 oninput="IdPosVal(this)"
+                 onblur="IdPosVal(this)">
+          <span class="error-msg"></span>
+        </div>
 
-            // Tel/Cel: 10 dígitos
-            function TelVal(input) {
-                input.value = (input.value || '').replace(/\D/g, '').slice(0, 10);
-                var ok = /^\d{10}$/.test(input.value);
-                Msg(input, ok, 'OK', 'Debe tener 10 dígitos');
-            }
+        <!-- Catálogos para cascada -->
+        <div class="col-md-4">
+          <label class="form-label fw-bold">País</label>
+          <select id="paisddl" class="form-select" aria-label="Default select example">
+            <option value="" selected disabled>-- Selecciona un país --</option>
+            <option th:each="pais : ${paises}"
+                    th:value="${pais.IdPais}"  th:text="${pais.nombre}"></option>
+          </select>
+          <span class="error-msg"></span>
+        </div>
 
-            // Tipo sangre (opcional, 1–5, A/B/AB/O con +/-)
-            function SangreVal(input) {
-                var v = (input.value || '').trim().toUpperCase().slice(0, 5);
-                input.value = v;
-                var ok = v === '' || /^[A-Z0-9+\-]{1,5}$/.test(v);
-                Msg(input, ok, v === '' ? 'Opcional' : 'OK', 'Ej.: O+, A-, AB');
-            }
+        <div class="col-md-3">
+          <label for="estadoddl" class="form-label fw-bold">Estado</label>
+          <select id="estadoddl" class="form-select" aria-label="Default select example">
+            <option value="0" selected>Selecciona un estado</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="municipioddl" class="form-label fw-bold">Municipio</label>
+          <select id="municipioddl" class="form-select" aria-label="Default select example">
+            <option value="0" selected>Selecciona un municipio</option>
+          </select>
+        </div>
 
-            // IDs positivos (rol/colonia)
-            function IdPosVal(input) {
-                var ok = /^[1-9]\d*$/.test((input.value || '').trim());
-                Msg(input, ok, 'OK', 'Entero > 0');
-            }
+        <div class="col-md-3">
+          <label for="coloniaddl" class="form-label fw-bold">Colonia</label>
+          <select id="coloniaddl" class="form-select" aria-label="Default select example">
+            <option value=0 selected>Selecciona una colonia</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="CodigoPostal" class="form-label fw-bold">Codigo Postal</label>
+          <input id="CodigoPostal" type="text" class="form-control"
+                 placeholder="Codigo Postal"
+                 th:field="*{direcciones[0].colonia.codigoPostal}"
+                 readonly>
+        </div>
+      </div>
+    </div>
 
-            // Calle 3–80 con ., #, -, /, °
-            function CalleVal(input) {
-                var v = (input.value || '').replace(/\s{2,}/g, ' ').trimStart();
-                input.value = v;
-                var ok = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9\s\.\,\#\-\/°]{3,80}$/.test(v);
-                Msg(input, ok, 'OK', '3–80, admite . , # - / °');
-            }
+    <!-- Acciones -->
+    <div class="action-bar py-3">
+      <div class="container d-flex justify-content-center gap-2">
+        <button type="submit" class="btn btn-gradient btn-lg">
+          <i class="bi bi-check2-circle me-1"></i>
+          <span th:text="${mode == 'full'} ? 'Guardar' : 'Actualizar'">Guardar</span>
+        </button>
+        <a th:href="@{/usuario}" class="btn btn-outline-secondary btn-lg">
+          <i class="bi bi-arrow-left me-1"></i> Cancelar
+        </a>
+      </div>
+    </div>
+  </form>
 
-            // Número puerta (opcional) letras/números/-/ 1–10
-            function PuertaVal(input) {
-                var v = (input.value || '').replace(/[^A-Za-z0-9\-\/]/g, '').slice(0, 10);
-                input.value = v;
-                var ok = (v === '') || /^[A-Za-z0-9\-\/]{1,10}$/.test(v);
-                Msg(input, ok, v === '' ? 'Opcional' : 'OK', 'Hasta 10: letras/números/-/');
-            }
+  <!-- ===================== FORM DIRECCIÓN (ADD/EDIT) ===================== -->
+  <form th:if="${mode == 'direccion'}"
+        th:object="${direccion}"
+        method="post"
+        th:action="${action == 'add'} ? @{/usuario/direccion/add} : @{/usuario/direccion/update}"
+        id="formDireccion"
+        novalidate>
 
-            //  revisa todos y bloquea si algo falla
-            document.getElementById('registroForm').addEventListener('submit', function (e) {
-                var ok = true;
-                ['nombre', 'apep'].forEach(function (id) {
-                    var el = document.getElementById(id);
-                    if (el) {
-                        NombreVal(el);
-                        ok = ok && el.classList.contains('correct');
-                    }
-                });
-                var apem = document.getElementById('apem');
-                if (apem) {
-                    NombreOpcVal(apem);
-                    ok = ok && (apem.classList.contains('correct') || apem.value.trim() === '');
-                }
-                var sexo = document.getElementById('sexo');
-                if (sexo) {
-                    SexoVal(sexo);
-                    ok = ok && sexo.classList.contains('correct');
-                }
-                var curp = document.getElementById('curp');
-                if (curp) {
-                    CurpVal(curp, true);
-                    ok = ok && curp.classList.contains('correct');
-                }
-                var fnac = document.getElementById('fnac');
-                if (fnac) {
-                    FechaVal(fnac);
-                    ok = ok && fnac.classList.contains('correct');
-                }
-                var usr = document.getElementById('username');
-                if (usr) {
-                    UsernameVal(usr);
-                    ok = ok && usr.classList.contains('correct');
-                }
-                var mail = document.getElementById('email');
-                if (mail) {
-                    EmailVal(mail, true);
-                    ok = ok && mail.classList.contains('correct');
-                }
-                var pass = document.getElementById('password');
-                if (pass) {
-                    PassVal(pass);
-                    ok = ok && pass.classList.contains('correct');
-                }
-                var tel = document.getElementById('tel');
-                if (tel) {
-                    TelVal(tel);
-                    ok = ok && tel.classList.contains('correct');
-                }
-                var cel = document.getElementById('cel');
-                if (cel) {
-                    TelVal(cel);
-                    ok = ok && cel.classList.contains('correct');
-                }
-                var sangre = document.getElementById('sangre');
-                if (sangre) {
-                    SangreVal(sangre);
-                    ok = ok && (sangre.classList.contains('correct') || sangre.value === '');
-                }
-                var rol = document.getElementById('rol');
-                if (rol) {
-                    IdPosVal(rol);
-                    ok = ok && rol.classList.contains('correct');
-                }
-                var col = document.getElementById('colonia');
-                if (col) {
-                    IdPosVal(col);
-                    ok = ok && col.classList.contains('correct');
-                }
-                var calle = document.getElementById('calle');
-                if (calle) {
-                    CalleVal(calle);
-                    ok = ok && calle.classList.contains('correct');
-                }
-                var ne = document.getElementById('nExt');
-                if (ne) {
-                    PuertaVal(ne);
-                    ok = ok && (ne.classList.contains('correct') || ne.value === '');
-                }
-                var ni = document.getElementById('nInt');
-                if (ni) {
-                    PuertaVal(ni);
-                    ok = ok && (ni.classList.contains('correct') || ni.value === '');
-                }
+    <input type="hidden" name="idUsuario" th:value="${usuario.idUsuario}"/>
+    <input type="hidden" th:if="${action == 'edit'}" th:field="*{idDireccion}"/>
 
-                if (!ok) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            });
+    <div class="card p-4 mb-5">
+      <h5 class="section-title">
+        <i class="bi bi-geo-alt"></i>
+        <span th:text="${action == 'add'} ? 'Nueva dirección' : 'Editar dirección'">Dirección</span>
+      </h5>
 
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Calle</label>
+          <input id="calle" class="form-control no-paste"
+                 th:field="*{calle}" placeholder="Calle" maxlength="80" required
+                 oninput="CalleVal(this)" onblur="CalleVal(this)">
+          <span class="error-msg"></span>
+        </div>
 
-            $(document).ready(function () {
-                console.log("Cliente listo");
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Número exterior</label>
+          <input id="nExt" class="form-control no-paste"
+                 th:field="*{numeroExterior}" placeholder="Número exterior" maxlength="10"
+                 oninput="PuertaVal(this)" onblur="PuertaVal(this)">
+          <span class="error-msg"></span>
+        </div>
 
-                // Evento para País → Estado
-                $("#paisddl").change(function () {
-                    let idPais = $(this).val();
-                    if (!idPais || idPais === "0")
-                        return;
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Número interior</label>
+          <input id="nInt" class="form-control no-paste"
+                 th:field="*{numeroInterior}" placeholder="Número interior" maxlength="10"
+                 oninput="PuertaVal(this)" onblur="PuertaVal(this)">
+          <span class="error-msg"></span>
+        </div>
 
-                    $.ajax({
-                        type: "GET",
-                        url: "/usuario/getEstadosByPais/" + idPais,
-                        dataType: "json",
-                        success: function (data) {
-                            if (data.correct) {
-                                $("#estadoddl").empty().append("<option value='0' selected>Selecciona un estado</option>");
-                                $.each(data.objects, function (i, estado) {
-                                    $("#estadoddl").append("<option value='" + estado.idEstado + "'>" + estado.nombre + "</option>");
-                                });
-                            } else {
-                                console.warn("No se encontraron estados para el país seleccionado.");
-                            }
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            console.error("Error al obtener estados:", textStatus, errorThrown);
-                            alert("Ocurrió un error al cargar los estados.");
-                        }
-                    });
-                });
+        <div class="col-md-4">
+          <label class="form-label fw-bold">ID Colonia</label>
+          <input id="colonia" class="form-control no-paste" type="number"
+                 th:field="*{colonia.idColonia}" placeholder="ID Colonia" min="1" required
+                 oninput="IdPosVal(this)" onblur="IdPosVal(this)">
+          <span class="error-msg"></span>
+        </div>
 
-                // Evento para Estado → Municipio
-                $("#estadoddl").change(function () {
-                    let idEstado = $(this).val();
-                    if (!idEstado || idEstado === "0")
-                        return;
+        <div class="col-md-4">
+          <label class="form-label fw-bold">País</label>
+          <select id="paisddl" class="form-select">
+            <option value="" selected disabled>-- Selecciona un país --</option>
+            <option th:each="pais : ${paises}"
+                    th:value="${pais.IdPais}"
+                    th:text="${pais.nombre}">
+            </option>
+          </select>
+          <span class="error-msg"></span>
+        </div>
 
-                    $.ajax({
-                        type: "GET",
-                        url: "/usuario/MunicipiosGetByIdEstado/" + idEstado,
-                        dataType: "json",
-                        success: function (data) {
-                            if (data.correct) {
-                                $("#municipioddl").empty().append("<option value='0' selected>Selecciona un municipio</option>");
-                                $.each(data.objects, function (i, municipio) {
-                                    $("#municipioddl").append("<option value='" + municipio.idMunicipio + "'>" + municipio.nombre + "</option>");
-                                });
-                            } else {
-                                console.warn("No se encontraron municipios para el estado seleccionado.");
-                            }
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            console.error("Error al obtener municipios:", textStatus, errorThrown);
-                            alert("Ocurrió un error al cargar los municipios.");
-                        }
-                    });
-                });
+        <div class="col-md-3">
+          <label for="estadoddl" class="form-label fw-bold">Estado</label>
+          <select id="estadoddl" class="form-select">
+            <option value="0" selected>Selecciona un estado</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="municipioddl" class="form-label fw-bold">Municipio</label>
+          <select id="municipioddl" class="form-select">
+            <option value="0" selected>Selecciona un municipio</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="coloniaddl" class="form-label fw-bold">Colonia</label>
+          <select id="coloniaddl" class="form-select">
+            <option value="0" selected>Selecciona una colonia</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="CodigoPostal" class="form-label fw-bold">Código Postal</label>
+          <input id="CodigoPostal" type="text" class="form-control"
+                 placeholder="Codigo Postal"
+                 th:field="*{colonia.codigoPostal}"
+                 readonly>
+        </div>
+      </div>
+    </div>
 
+    <div class="action-bar py-3">
+      <div class="container d-flex justify-content-center gap-2">
+        <button type="submit" class="btn btn-gradient btn-lg">
+          <i class="bi bi-check2-circle me-1"></i>
+          <span th:text="${action == 'add'} ? 'Guardar dirección' : 'Actualizar dirección'">Guardar</span>
+        </button>
+        <a th:href="@{|/usuario/editarUsuario/${usuario.idUsuario}|}" class="btn btn-outline-secondary btn-lg">
+          <i class="bi bi-arrow-left me-1"></i> Cancelar
+        </a>
+      </div>
+    </div>
+  </form>
+</div>
 
-                $("#municipioddl").change(function () {
-                    let idMunicipio = $(this).val();
-                    // Limpia CP cada vez que cambies municipio
-                    $("#CodigoPostal").val("");
+<!-- ===================== TUS SCRIPTS ORIGINALES (SIN CAMBIOS) ===================== -->
+<script>
+  // VALIDACIONES SIMPLES POR EVENTO  
 
-                    if (!idMunicipio || idMunicipio === "0") {
-                        $("#coloniaddl").empty().append("<option value='0' selected>Selecciona una Colonia</option>");
-                        return;
-                    }
+  // Bloquear copiar/pegar/cortar/contextmenu en .no-paste
+  document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.no-paste').forEach(function (el) {
+          ['paste', 'copy', 'cut', 'contextmenu'].forEach(function (ev) {
+              el.addEventListener(ev, function (e) {
+                  e.preventDefault();
+              });
+          });
+      });
+      // Max fecha = hoy
+      var fnac = document.getElementById('fnac');
+      if (fnac) {
+          fnac.setAttribute('max', new Date().toISOString().split('T')[0]);
+      }
+  });
 
-                    $.ajax({
-                        type: "GET",
-                        url: "/usuario/ColoniasGetByIdMunicipio/" + idMunicipio,
-                        dataType: "json",
-                        success: function (data) {
-                            if (data.correct) {
-                                $("#coloniaddl").empty().append("<option value='0' selected>Selecciona una Colonia</option>");
-                                $.each(data.objects, function (i, colonia) {
-                                    // inyecta el CP como data attribute
-                                    $("#coloniaddl").append(
-                                            "<option value='" + colonia.idColonia + "' data-cp='" + (colonia.codigoPostal || "") + "'>" +
-                                            colonia.nombre +
-                                            "</option>"
-                                            );
-                                });
+  // Utilidad mínima local (mostrar mensaje junto al input)
+  function Msg(input, ok, msgOk, msgErr) {
+      var span = input.nextElementSibling;
+      while (span && !span.classList.contains('error-msg'))
+          span = span.nextElementSibling;
+      input.classList.toggle('correct', !!ok);
+      input.classList.toggle('error', !ok);
+      if (span) {
+          span.textContent = ok ? (msgOk || '') : (msgErr || 'Inválido');
+      }
+  }
 
-                                // Cuando elijan una colonia, poner su CP
-                                $("#coloniaddl").off("change.coloniaCP").on("change.coloniaCP", function () {
-                                    let cp = $(this).find(":selected").data("cp") || "";
-                                    $("#CodigoPostal").val(cp);
-                                });
-                            } else {
-                                console.warn("No se encontraron colonias para el municipio seleccionado.");
-                                $("#coloniaddl").empty().append("<option value='0' selected>Selecciona una Colonia</option>");
-                            }
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            console.error("Error al obtener colonias:", textStatus, errorThrown);
-                            alert("Ocurrió un error al cargar las colonias.");
-                            $("#coloniaddl").empty().append("<option value='0' selected>Selecciona una Colonia</option>");
-                        }
-                    });
-                });
-            });
+  // Solo letras (teclado)
+  function SoloLetras(e, input) {
+      var k = e.key;
+      var especiales = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End', ' '];
+      if (especiales.indexOf(k) !== -1)
+          return true;
+      var letra = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]$/.test(k);
+      if (!letra) {
+          e.preventDefault();
+          if (input) {
+              input.classList.add('error');
+              var span = input.nextElementSibling;
+              if (span && span.classList.contains('error-msg'))
+                  span.textContent = 'Solo letras';
+          }
+          return false;
+      }
+      return true;
+  }
 
+  // Nombres requeridos (con espacios)
+  function NombreVal(input) {
+      var v = (input.value || '').trim();
+      var ok = v.length > 0 && v.length <= 50 && /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/.test(v);
+      Msg(input, ok, 'OK', 'Solo letras y espacios (máx. 50)');
+  }
 
+  // Apellido materno opcional
+  function NombreOpcVal(input) {
+      var v = (input.value || '').trim();
+      var ok = v === '' || (v.length <= 50 && /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/.test(v));
+      Msg(input, ok, v === '' ? 'Opcional' : 'OK', 'Solo letras y espacios (máx. 50)');
+  }
 
-        </script>
+  // Evitar espacios con teclado (email/curp)
+  function SinEspacios(e) {
+      if (e.key === ' ') {
+          e.preventDefault();
+          return false;
+      }
+      return true;
+  }
 
-    </body>
+  // Sexo
+  function SexoVal(sel) {
+      var ok = !!sel.value;
+      Msg(sel, ok, 'OK', 'Selecciona sexo');
+  }
 
+  // CURP (mayúsculas, sin espacios/ni símbolos)
+  function CurpVal(input, estricto) {
+      input.value = (input.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 18);
+      var ok = /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/.test(input.value);
+      if (estricto) {
+          Msg(input, ok, 'OK', 'CURP inválida');
+      } else {
+          Msg(input, (input.value === '' || ok), input.value === '' ? 'Requerido' : 'OK', 'CURP inválida');
+      }
+  }
+
+  // Fecha no futura
+  function FechaVal(input) {
+      var hoy = new Date().toISOString().split('T')[0];
+      var ok = !!input.value && input.value <= hoy;
+      Msg(input, ok, 'OK', 'No puede ser futura');
+  }
+
+  // Username: 4-30, letras/números
+  function UsernameNoEmpieceNumero(e, input) {
+      var pos = input.selectionStart || 0;
+      if (pos === 0 && /^\d$/.test(e.key)) {
+          e.preventDefault();
+          return false;
+      }
+      return true;
+  }
+  function UsernameVal(input) {
+      var v = (input.value || '').trim();
+      if (/^\d/.test(v)) {
+          v = v.replace(/^\d+/, '');
+          input.value = v;
+      }
+      var ok = /^[A-Za-z0-9_]{4,30}$/.test(v);
+      Msg(input, ok, 'OK', '4–30, letras/números/_');
+  }
+
+  // Email
+  function EmailVal(input, estricto) {
+      input.value = (input.value || '').replace(/\s+/g, '').trim();
+      var rx = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+      var v = input.value;
+      var ok = estricto ? rx.test(v) : (v === '' || rx.test(v));
+      Msg(input, ok, 'OK', v === '' ? 'Requerido' : 'Email inválido');
+  }
+
+  // Password: mínimo 8, con letra y número
+  function PassVal(input) {
+      var ok = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(input.value || '');
+      Msg(input, ok, 'OK', 'Mín. 8, letra y número');
+  }
+
+  // Solo números en teclado (tel/cel)
+  function SoloNumeros(e) {
+      var permitidas = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+      if (permitidas.indexOf(e.key) !== -1)
+          return true;
+      if (e.key.length === 1 && !/\d/.test(e.key)) {
+          e.preventDefault();
+          return false;
+      }
+      return true;
+  }
+
+  // Tel/Cel: 10 dígitos
+  function TelVal(input) {
+      input.value = (input.value || '').replace(/\D/g, '').slice(0, 10);
+      var ok = /^\d{10}$/.test(input.value);
+      Msg(input, ok, 'OK', 'Debe tener 10 dígitos');
+  }
+
+  // Tipo sangre (opcional, 1–5, A/B/AB/O con +/-)
+  function SangreVal(input) {
+      var v = (input.value || '').trim().toUpperCase().slice(0, 5);
+      input.value = v;
+      var ok = v === '' || /^[A-Z0-9+\-]{1,5}$/.test(v);
+      Msg(input, ok, v === '' ? 'Opcional' : 'OK', 'Ej.: O+, A-, AB');
+  }
+
+  // IDs positivos (rol/colonia)
+  function IdPosVal(input) {
+      var ok = /^[1-9]\d*$/.test((input.value || '').trim());
+      Msg(input, ok, 'OK', 'Entero > 0');
+  }
+
+  // Calle 3–80 con ., #, -, /, °
+  function CalleVal(input) {
+      var v = (input.value || '').replace(/\s{2,}/g, ' ').trimStart();
+      input.value = v;
+      var ok = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9\s\.\,\#\-\/°]{3,80}$/.test(v);
+      Msg(input, ok, 'OK', '3–80, admite . , # - / °');
+  }
+
+  // Número puerta (opcional) letras/números/-/ 1–10
+  function PuertaVal(input) {
+      var v = (input.value || '').replace(/[^A-Za-z0-9\-\/]/g, '').slice(0, 10);
+      input.value = v;
+      var ok = (v === '') || /^[A-Za-z0-9\-\/]{1,10}$/.test(v);
+      Msg(input, ok, v === '' ? 'Opcional' : 'OK', 'Hasta 10: letras/números/-/');
+  }
+
+  //  revisa todos y bloquea si algo falla
+  document.getElementById('formUsuario')?.addEventListener('submit', function (e) {
+      var ok = true;
+      ['nombre', 'apep'].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) {
+              NombreVal(el);
+              ok = ok && el.classList.contains('correct');
+          }
+      });
+      var apem = document.getElementById('apem');
+      if (apem) {
+          NombreOpcVal(apem);
+          ok = ok && (apem.classList.contains('correct') || apem.value.trim() === '');
+      }
+      var sexo = document.getElementById('sexo');
+      if (sexo) {
+          SexoVal(sexo);
+          ok = ok && sexo.classList.contains('correct');
+      }
+      var curp = document.getElementById('curp');
+      if (curp) {
+          CurpVal(curp, true);
+          ok = ok && curp.classList.contains('correct');
+      }
+      var fnac = document.getElementById('fnac');
+      if (fnac) {
+          FechaVal(fnac);
+          ok = ok && fnac.classList.contains('correct');
+      }
+      var usr = document.getElementById('username');
+      if (usr) {
+          UsernameVal(usr);
+          ok = ok && usr.classList.contains('correct');
+      }
+      var mail = document.getElementById('email');
+      if (mail) {
+          EmailVal(mail, true);
+          ok = ok && mail.classList.contains('correct');
+      }
+      var pass = document.getElementById('password');
+      if (pass) {
+          PassVal(pass);
+          ok = ok && pass.classList.contains('correct');
+      }
+      var tel = document.getElementById('tel');
+      if (tel) {
+          TelVal(tel);
+          ok = ok && tel.classList.contains('correct');
+      }
+      var cel = document.getElementById('cel');
+      if (cel) {
+          TelVal(cel);
+          ok = ok && cel.classList.contains('correct');
+      }
+      var sangre = document.getElementById('sangre');
+      if (sangre) {
+          SangreVal(sangre);
+          ok = ok && (sangre.classList.contains('correct') || sangre.value === '');
+      }
+      var col = document.getElementById('colonia');
+      if (col) {
+          IdPosVal(col);
+          ok = ok && col.classList.contains('correct');
+      }
+      var calle = document.getElementById('calle');
+      if (calle) {
+          CalleVal(calle);
+          ok = ok && calle.classList.contains('correct');
+      }
+      var ne = document.getElementById('nExt');
+      if (ne) {
+          PuertaVal(ne);
+          ok = ok && (ne.classList.contains('correct') || ne.value === '');
+      }
+      var ni = document.getElementById('nInt');
+      if (ni) {
+          PuertaVal(ni);
+          ok = ok && (ni.classList.contains('correct') || ni.value === '');
+      }
+
+      if (!ok) {
+          e.preventDefault();
+          e.stopPropagation();
+      }
+  });
+
+  $(document).ready(function () {
+      console.log("Cliente listo");
+
+      // Evento para País → Estado
+      $("#paisddl").change(function () {
+          let idPais = $(this).val();
+          if (!idPais || idPais === "0") return;
+
+          $.ajax({
+              type: "GET",
+              url: "/usuario/getEstadosByPais/" + idPais,
+              dataType: "json",
+              success: function (data) {
+                  if (data.correct) {
+                      $("#estadoddl").empty().append("<option value='0' selected>Selecciona un estado</option>");
+                      $.each(data.objects, function (i, estado) {
+                          $("#estadoddl").append("<option value='" + estado.idEstado + "'>" + estado.nombre + "</option>");
+                      });
+                  } else {
+                      console.warn("No se encontraron estados para el país seleccionado.");
+                  }
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                  console.error("Error al obtener estados:", textStatus, errorThrown);
+                  alert("Ocurrió un error al cargar los estados.");
+              }
+          });
+      });
+
+      // Evento para Estado → Municipio
+      $("#estadoddl").change(function () {
+          let idEstado = $(this).val();
+          if (!idEstado || idEstado === "0") return;
+
+          $.ajax({
+              type: "GET",
+              url: "/usuario/MunicipiosGetByIdEstado/" + idEstado,
+              dataType: "json",
+              success: function (data) {
+                  if (data.correct) {
+                      $("#municipioddl").empty().append("<option value='0' selected>Selecciona un municipio</option>");
+                      $.each(data.objects, function (i, municipio) {
+                          $("#municipioddl").append("<option value='" + municipio.idMunicipio + "'>" + municipio.nombre + "</option>");
+                      });
+                  } else {
+                      console.warn("No se encontraron municipios para el estado seleccionado.");
+                  }
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                  console.error("Error al obtener municipios:", textStatus, errorThrown);
+                  alert("Ocurrió un error al cargar los municipios.");
+              }
+          });
+      });
+
+      // Evento para Municipio → Colonias + CP
+      $("#municipioddl").change(function () {
+          let idMunicipio = $(this).val();
+          $("#CodigoPostal").val("");
+
+          if (!idMunicipio || idMunicipio === "0") {
+              $("#coloniaddl").empty().append("<option value='0' selected>Selecciona una Colonia</option>");
+              return;
+          }
+
+          $.ajax({
+              type: "GET",
+              url: "/usuario/ColoniasGetByIdMunicipio/" + idMunicipio,
+              dataType: "json",
+              success: function (data) {
+                  if (data.correct) {
+                      $("#coloniaddl").empty().append("<option value='0' selected>Selecciona una Colonia</option>");
+                      $.each(data.objects, function (i, colonia) {
+                          $("#coloniaddl").append(
+                              "<option value='" + colonia.idColonia + "' data-cp='" + (colonia.codigoPostal || "") + "'>" +
+                              colonia.nombre +
+                              "</option>"
+                          );
+                      });
+
+                      // Al elegir colonia, pinta CP
+                      $("#coloniaddl").off("change.coloniaCP").on("change.coloniaCP", function () {
+                          let cp = $(this).find(":selected").data("cp") || "";
+                          $("#CodigoPostal").val(cp);
+                      });
+                  } else {
+                      console.warn("No se encontraron colonias para el municipio seleccionado.");
+                      $("#coloniaddl").empty().append("<option value='0' selected>Selecciona una Colonia</option>");
+                  }
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                  console.error("Error al obtener colonias:", textStatus, errorThrown);
+                  alert("Ocurrió un error al cargar las colonias.");
+                  $("#coloniaddl").empty().append("<option value='0' selected>Selecciona una Colonia</option>");
+              }
+          });
+      });
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
