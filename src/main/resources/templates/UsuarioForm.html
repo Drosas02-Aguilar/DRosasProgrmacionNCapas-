@@ -113,7 +113,7 @@
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Nombre</label>
                             <input id="nombre" class="form-control solo-letras no-paste"
-                                   th:field="*{nombre}" placeholder="Nombre" maxlength="50" required
+                                   th:field="*{Nombre}" placeholder="Nombre" maxlength="50" required
                                    onkeypress="return SoloLetras(event, this)"
                                    oninput="NombreVal(this)"
                                    onblur="NombreVal(this)">
@@ -133,7 +133,7 @@
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Apellido materno</label>
                             <input id="apem" class="form-control solo-letras no-paste"
-                                   th:field="*{apellidomaterno}" placeholder="Apellido materno" maxlength="50"
+                                   th:field="*{Apellidomaterno}" placeholder="Apellido materno" maxlength="50"
                                    onkeypress="return SoloLetras(event, this)"
                                    oninput="NombreOpcVal(this)"
                                    onblur="NombreOpcVal(this)">
@@ -142,7 +142,7 @@
 
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Sexo</label>
-                            <select id="sexo" class="form-select" th:field="*{sexo}" required
+                            <select id="sexo" class="form-select" th:field="*{Sexo}" required
                                     onchange="SexoVal(this)">
                                 <option value="" disabled>Selecciona…</option>
                                 <option value="M">Masculino</option>
@@ -154,7 +154,7 @@
                         <div class="col-md-4">
                             <label class="form-label fw-bold">CURP</label>
                             <input id="curp" class="form-control text-uppercase no-paste"
-                                   th:field="*{curp}" placeholder="CURP" maxlength="18" required
+                                   th:field="*{Curp}" placeholder="CURP" maxlength="18" required
                                    onkeydown="return SinEspacios(event)"
                                    oninput="CurpVal(this)"
                                    onblur="CurpVal(this, true)">
@@ -164,7 +164,7 @@
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Fecha de nacimiento</label>
                             <input id="fnac" class="form-control" type="date"
-                                   th:field="*{fechaNacimiento}" required
+                                   th:field="*{FechaNacimiento}" required
                                    oninput="FechaVal(this)"
                                    onblur="FechaVal(this)">
                             <span class="error-msg"></span>
@@ -180,7 +180,7 @@
 
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Username</label>
-                            <input id="username" class="form-control no-paste" th:field="*{username}"
+                            <input id="username" class="form-control no-paste" th:field="*{Username}"
                                    placeholder="Username" maxlength="30" required
                                    onkeydown="return UsernameNoEmpieceNumero(event, this)"
                                    oninput="UsernameVal(this)"
@@ -190,7 +190,7 @@
 
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Email</label>
-                            <input id="email" class="form-control no-paste" type="email" th:field="*{email}"
+                            <input id="email" class="form-control no-paste" type="email" th:field="*{Email}"
                                    placeholder="Email" maxlength="80" required
                                    onkeydown="return SinEspacios(event)"
                                    oninput="EmailVal(this)"
@@ -205,7 +205,7 @@
 
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Contraseña</label>
-                            <input id="password" class="form-control no-paste" type="password" th:field="*{password}"
+                            <input id="password" class="form-control no-paste" type="password" th:field="*{Password}"
                                    placeholder="Contraseña" required
                                    oninput="PassVal(this)"
                                    onblur="PassVal(this)">
@@ -217,7 +217,7 @@
                     <div class="row g-3 mt-1">
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Teléfono (10 dígitos)</label>
-                            <input id="tel" class="form-control no-paste" th:field="*{telefono}"
+                            <input id="tel" class="form-control no-paste" th:field="*{Telefono}"
                                    placeholder="Teléfono" inputmode="numeric" maxlength="10" required
                                    onkeydown="return SoloNumeros(event)"
                                    oninput="TelVal(this)"
@@ -227,7 +227,7 @@
 
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Celular (10 dígitos)</label>
-                            <input id="cel" class="form-control no-paste" th:field="*{celular}"
+                            <input id="cel" class="form-control no-paste" th:field="*{Celular}"
                                    placeholder="Celular" inputmode="numeric" maxlength="10" required
                                    onkeydown="return SoloNumeros(event)"
                                    oninput="TelVal(this)"
@@ -237,7 +237,7 @@
 
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Tipo de sangre</label>
-                            <input id="sangre" class="form-control no-paste" th:field="*{tiposangre}"
+                            <input id="sangre" class="form-control no-paste" th:field="*{Tiposangre}"
                                    placeholder="Ej. O+, A-" maxlength="5"
                                    oninput="SangreVal(this)"
                                    onblur="SangreVal(this)">
@@ -250,13 +250,13 @@
                             <label class="form-label fw-bold">Rol</label>
                             <select id="rolSelect"
                                     class="form-select"
-                                    th:field="*{rol.idRol}"
+                                    th:field="*{Rol.IdRol}"
                                     oninput="IdPosVal(this)"
                                     onblur="IdPosVal(this)">
                                 <option value="0" disabled>Selecciona un rol</option>
-                                <option th:each="rol : ${roles}"
-                                        th:text="${rol.nombre}"
-                                        th:value="${rol.idRol}">Rol</option>
+                                <option th:each="Rol : ${roles}"
+                                        th:text="${Rol.Nombre}"
+                                        th:value="${Rol.IdRol}">Rol</option>
                             </select>
                             <span class="error-msg"></span>
                         </div>
@@ -270,7 +270,7 @@
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Calle</label>
                             <input id="calle" class="form-control no-paste"
-                                   th:field="*{direcciones[0].calle}" placeholder="Calle" maxlength="80" required
+                                   th:field="*{direcciones[0].Calle}" placeholder="Calle" maxlength="80" required
                                    oninput="CalleVal(this)"
                                    onblur="CalleVal(this)">
                             <span class="error-msg"></span>
@@ -279,7 +279,7 @@
                         <div class="col-md-3">
                             <label class="form-label fw-bold">Número exterior</label>
                             <input id="nExt" class="form-control no-paste"
-                                   th:field="*{direcciones[0].numeroExterior}" placeholder="Número exterior" maxlength="10"
+                                   th:field="*{direcciones[0].NumeroExterior}" placeholder="Número exterior" maxlength="10"
                                    oninput="PuertaVal(this)"
                                    onblur="PuertaVal(this)">
                             <span class="error-msg"></span>
@@ -288,7 +288,7 @@
                         <div class="col-md-3">
                             <label class="form-label fw-bold">Número interior</label>
                             <input id="nInt" class="form-control no-paste"
-                                   th:field="*{direcciones[0].numeroInterior}" placeholder="Número interior" maxlength="10"
+                                   th:field="*{direcciones[0].NumeroInterior}" placeholder="Número interior" maxlength="10"
                                    oninput="PuertaVal(this)"
                                    onblur="PuertaVal(this)">
                             <span class="error-msg"></span>
@@ -394,11 +394,11 @@
 
                         <div class="col-md-4">
                             <label class="form-label fw-bold">País</label>
-                            <select id="paisddl" class="form-select" th:field="*{colonia.municipio.estado.pais.idPais}">
+                            <select id="paisddl" class="form-select" th:field="*{Colonia.Municipio.Estado.Pais.IdPais}">
                                 <option value="0" selected disabled>-- Selecciona un país --</option>
-                                <option th:each="pais : ${paises}"
-                                        th:value="${pais.IdPais}"
-                                        th:text="${pais.nombre}">
+                                <option th:each="Pais : ${paises}"
+                                        th:value="${Pais.IdPais}"
+                                        th:text="${Pais.Nombre}">
                                 </option>
                             </select>
                             <span class="error-msg"></span>
@@ -406,21 +406,21 @@
 
                         <div class="col-md-3">
                             <label for="estadoddl" class="form-label fw-bold">Estado</label>
-                            <select id="estadoddl" class="form-select"  th:field="*{colonia.municipio.estado.idEstado}" >
+                            <select id="estadoddl" class="form-select"  th:field="*{Colonia.Municipio.Estado.IdEstado}" >
                                 <option value="0" selected>Selecciona un estado</option>
                             </select>
                         </div>
 
                         <div class="col-md-3">
                             <label for="municipioddl" class="form-label fw-bold">Municipio</label>
-                            <select id="municipioddl" class="form-select" th:field="*{colonia.municipio.idMunicipio}">
+                            <select id="municipioddl" class="form-select" th:field="*{Colonia.Municipio.IdMunicipio}">
                                 <option value="0" selected>Selecciona un municipio</option>
                             </select>
                         </div>
 
                         <div class="col-md-3">
                             <label for="coloniaddl" class="form-label fw-bold">Colonia</label>
-                            <select id="coloniaddl" class="form-select"  th:field="*{colonia.idColonia}" >
+                            <select id="coloniaddl" class="form-select"  th:field="*{Colonia.IdColonia}" >
                                 <option value="0" selected>Selecciona una colonia</option>
                             </select>
                         </div>
@@ -429,7 +429,7 @@
                             <label for="CodigoPostal" class="form-label fw-bold">Código Postal</label>
                             <input id="CodigoPostal" type="text" class="form-control"
                                    placeholder="Codigo Postal"
-                                   th:field="*{colonia.codigoPostal}"
+                                   th:field="*{Colonia.CodigoPostal}"
                                    readonly>
                         </div>
                     </div>
