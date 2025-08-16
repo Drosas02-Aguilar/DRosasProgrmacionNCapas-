@@ -18,21 +18,17 @@ public class Direccion {
 
    
 
-   
-
-   // public Direccion() {}
-
-   // public Direccion(int IdDireccion, String Calle, String NumeroExterior, String NumeroInterior) {
-      //  this.IdDireccion = IdDireccion;
-     //   this.Calle = Calle;
-    //    this.NumeroExterior = NumeroExterior;
-   //     this.NumeroInterior = NumeroInterior;
-    //}
-
-    public int getIdDireccion() {
+    public int getIdDireccion() {   
         return IdDireccion;
     }
 
+    // public Direccion() {}
+    // public Direccion(int IdDireccion, String Calle, String NumeroExterior, String NumeroInterior) {
+    //  this.IdDireccion = IdDireccion;
+    //   this.Calle = Calle;
+    //    this.NumeroExterior = NumeroExterior;
+    //     this.NumeroInterior = NumeroInterior;
+    //}
     public void setIdDireccion(int IdDireccion) {
         this.IdDireccion = IdDireccion;
     }

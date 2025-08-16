@@ -9,5 +9,7 @@ Result DireccionesByIdUsuario(int idUsuario);
 Result Add(Usuario usuario); 
 Result update(Usuario usuario);
 Result deleteById(int IdUsuario);
+Result GetAllUsuario();
+Result GetByiDUsuario(int IdUsuario);
 
 }

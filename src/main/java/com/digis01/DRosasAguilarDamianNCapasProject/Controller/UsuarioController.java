@@ -14,7 +14,6 @@ import com.digis01.DRosasAguilarDamianNCapasProject.ML.Estado;
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Municipio;
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Pais;
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Result;
-import com.digis01.DRosasAguilarDamianNCapasProject.ML.Rol;
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario;
 
 import jakarta.validation.Valid;
@@ -27,7 +26,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -63,40 +62,36 @@ public class UsuarioController {
     // ========================= NUEVO USUARIO (FORM COMPLETO) =========================
     @GetMapping("add")
     public String add(Model model) {
-        // Catálogos
         Result rolesRs = rolDAOImplementation.GetAllRol();
         Result paisesRs = paisDAOImplementation.GetAllPais();
 
         Usuario usuario = new Usuario();
-        usuario.setDirecciones(new ArrayList<>());
-
-        Direccion direccion = new Direccion();
-        Colonia colonia = new Colonia();
-        Municipio municipio = new Municipio();
-        Estado estado = new Estado();
-        Pais pais = new Pais();
-
-        estado.setPais(pais);
-        municipio.setEstado(estado);
-        colonia.setMunicipio(municipio);
-        direccion.setColonia(colonia);
-
-        usuario.getDirecciones().add(direccion);
+//        usuario.setDirecciones(new ArrayList<>());
+//
+//        Direccion direccion = new Direccion();
+//        Colonia colonia = new Colonia();
+//        Municipio municipio = new Municipio();
+//        Estado estado = new Estado();
+//        Pais pais = new Pais();
+//
+//        estado.setPais(pais);
+//        municipio.setEstado(estado);
+//        colonia.setMunicipio(municipio);
+//        direccion.setColonia(colonia);
+//
+//        usuario.getDirecciones().add(direccion);
 
         model.addAttribute("Usuario", usuario);
         model.addAttribute("roles", rolesRs.correct ? rolesRs.objects : Collections.emptyList());
         model.addAttribute("paises", paisesRs.correct ? paisesRs.objects : Collections.emptyList());
-
         model.addAttribute("mode", "full");
         model.addAttribute("action", "add");
-
         return "UsuarioForm";
     }
 
     // ========================= GUARDAR NUEVO USUARIO =========================
     @PostMapping("add")
     public String Add(@Valid Usuario usuario, BindingResult br, Model model) {
-
         if (br.hasErrors()) {
             Result rolesRs = rolDAOImplementation.GetAllRol();
             Result paisesRs = paisDAOImplementation.GetAllPais();
@@ -107,14 +102,13 @@ public class UsuarioController {
             model.addAttribute("Usuario", usuario);
             return "UsuarioForm";
         }
-
-        Result rs = usuarioDAOImplementation.Add(usuario);
+        usuarioDAOImplementation.Add(usuario);
         return "redirect:/usuario";
     }
 
-    // ========================= EDITAR USUARIO  =========================
-    @GetMapping("editarUsuario/{idUsuario}")
-    public String EditarUsuario(@PathVariable int idUsuario, Model model) {
+    // ========================= EDITAR USUARIO (VISTA DETALLE/EDICIÓN) =========================
+    @GetMapping("editarUsuario")
+    public String EditarUsuario(@RequestParam("idUsuario") int idUsuario, Model model) {
         Result result = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
         if (!result.correct || result.object == null) {
             return "Error";
@@ -143,57 +137,56 @@ public class UsuarioController {
             model.addAttribute("usuario", usuario);
             model.addAttribute("direccion", direccion);
             model.addAttribute("paises", paisesRs.correct ? paisesRs.objects : Collections.emptyList());
-
             model.addAttribute("mode", "direccion");
             model.addAttribute("action", "add");
             return "UsuarioForm";
         }
-
         return "EditarUsuario";
     }
 
     // ========================= EDITAR SOLO INFO DE USUARIO =========================
-    @GetMapping("editarInfo/{idUsuario}")
-    public String EditarInfoUsuario(@PathVariable int idUsuario, Model model) {
-        Result result = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
-        if (!result.correct || result.object == null) {
-            return "Error";
-        }
-        Usuario u = (Usuario) result.object;
-
-        Result rolesRs = rolDAOImplementation.GetAllRol();
-
-        model.addAttribute("Usuario", u);
-        model.addAttribute("roles", rolesRs.correct ? rolesRs.objects : Collections.emptyList());
-        model.addAttribute("mode", "usuario");
-        model.addAttribute("action", "edit");
-        return "UsuarioForm";
+    @GetMapping("editarInfo")
+public String EditarInfoUsuario(@RequestParam("idUsuario") int idUsuario, Model model) {
+    Result result = usuarioDAOImplementation.GetByiDUsuario(idUsuario);
+    if (!result.correct || result.object == null) {
+        return "Error";
     }
+
+    Usuario usuario = (Usuario) result.object;
+    Result rolesRs = rolDAOImplementation.GetAllRol();
+
+    model.addAttribute("Usuario", usuario);
+    model.addAttribute("roles", rolesRs.correct ? rolesRs.objects : Collections.emptyList());
+    model.addAttribute("mode", "usuario");
+    model.addAttribute("action", "edit");
+    return "UsuarioForm";
+}
+
 
     // ========================= ACTUALIZAR INFO DE USUARIO =========================
     @PostMapping("update")
-    public String Update(@Valid Usuario usuario, BindingResult bindingResult, Model model) {
-        if (bindingResult.hasErrors()) {
-            Result result = rolDAOImplementation.GetAllRol();
-            model.addAttribute("roles", result.correct ? result.objects : Collections.emptyList());
-            model.addAttribute("mode", "usuario");
-            model.addAttribute("action", "edit");
-            model.addAttribute("Usuario", "usuario");
-            return "UsuarioForm";
-        }
-        Result rs = usuarioDAOImplementation.update(usuario);
-        return "redirect:/usuario";
+public String Update(@Valid @ModelAttribute("Usuario") Usuario usuario, BindingResult bindingResult, Model model) {
+    if (bindingResult.hasErrors()) {
+        Result result = rolDAOImplementation.GetAllRol();
+        model.addAttribute("roles", result.correct ? result.objects : Collections.emptyList());
+        model.addAttribute("mode", "usuario");
+        model.addAttribute("action", "edit");
+        model.addAttribute("Usuario", usuario);
+        return "UsuarioForm";
     }
+    usuarioDAOImplementation.update(usuario);
+    return "redirect:/usuario/editarUsuario?idUsuario=" + usuario.getIdUsuario();
+}
 
-    // ========================= AGREGAR DIRECCIÓN A USUARIO =========================
-    @GetMapping("direccion/add/{idUsuario}")
-    public String DireccionAddForm(@PathVariable int idUsuario, Model model) {
+    // ========================= AGREGAR DIRECCIÓN A USUARIO (FORM) =========================
+    @GetMapping("direccion/add")
+    public String DireccionAddForm(@RequestParam("idUsuario") int idUsuario, Model model) {
         Result rs = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
         if (!rs.correct || rs.object == null) {
             return "Error";
         }
-        Usuario usuario = (Usuario) rs.object;
 
+        Usuario usuario = (Usuario) rs.object;
         Result paisesRs = paisDAOImplementation.GetAllPais();
 
         Direccion direccion = new Direccion();
@@ -210,16 +203,16 @@ public class UsuarioController {
         model.addAttribute("usuario", usuario);
         model.addAttribute("direccion", direccion);
         model.addAttribute("paises", paisesRs.correct ? paisesRs.objects : Collections.emptyList());
-
         model.addAttribute("mode", "direccion");
         model.addAttribute("action", "add");
         return "UsuarioForm";
     }
 
+    // ========================= AGREGAR DIRECCIÓN (POST) =========================
     @PostMapping("direccion/add")
-    public String DireccionAdd(@RequestParam("idUsuario") int idUsuario, @Valid Direccion direccion, BindingResult br, Model model) {
+    public String DireccionAdd(@RequestParam("idUsuario") int idUsuario,
+            @Valid Direccion direccion, BindingResult br, Model model) {
         if (br.hasErrors()) {
-
             Result result = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
             Result paises = paisDAOImplementation.GetAllPais();
 
@@ -230,15 +223,14 @@ public class UsuarioController {
             model.addAttribute("action", "add");
             return "UsuarioForm";
         }
-
         direccionDAOImplementation.addToUsuario(idUsuario, direccion);
-        return "redirect:/usuario/editarUsuario/" + idUsuario;
+        return "redirect:/usuario/editarUsuario?idUsuario=" + idUsuario;
     }
 
-    // ========================= EDITAR DIRECCIÓN =========================
-    @GetMapping("/usuario/direccion/edit/{idUsuario}/{idDireccion}")
-    public String DireccionEditForm(@PathVariable int idUsuario,
-            @PathVariable int idDireccion,
+    // ========================= EDITAR DIRECCIÓN (FORM) =========================
+    @GetMapping("direccion/edit")
+    public String DireccionEditForm(@RequestParam("idUsuario") int idUsuario,
+            @RequestParam("idDireccion") int idDireccion,
             Model model) {
         Result result = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
         if (!result.correct || result.object == null) {
@@ -253,16 +245,17 @@ public class UsuarioController {
         Result paises = paisDAOImplementation.GetAllPais();
 
         model.addAttribute("usuario", result.object);
-        model.addAttribute("direccione", resultd.object);
+        model.addAttribute("direccion", resultd.object);
         model.addAttribute("paises", paises.correct ? paises.objects : Collections.emptyList());
         model.addAttribute("mode", "direccion");
         model.addAttribute("action", "edit");
-
         return "UsuarioForm";
     }
 
+    // ========================= ACTUALIZAR DIRECCIÓN (POST) =========================
     @PostMapping("direccion/update")
-    public String DireccionUpdate(@RequestParam("idUsuario") int idUsuario, @Valid Direccion direccion, BindingResult bindingResult, Model model) {
+    public String DireccionUpdate(@RequestParam("idUsuario") int idUsuario,
+            @Valid Direccion direccion, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             Result result = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
             Result paisesr = paisDAOImplementation.GetAllPais();
@@ -274,40 +267,42 @@ public class UsuarioController {
             model.addAttribute("action", "edit");
             return "UsuarioForm";
         }
-
         direccionDAOImplementation.updateDireccion(direccion);
-        return "redirect:/usuario/editarUsuario/" + idUsuario;
+        return "redirect:/usuario/editarUsuario?idUsuario=" + idUsuario;
     }
 
+    // ========================= ELIMINAR USUARIO =========================
     @GetMapping("eliminar")
     public String Eliminar(@RequestParam("id") int idUsuario) {
         usuarioDAOImplementation.deleteById(idUsuario);
         return "redirect:/usuario";
     }
 
-    @GetMapping("getEstadosByPais/{IdPais}")
+    // ========================= CASCADAS (CATÁLOGOS) =========================
+    @GetMapping("getEstadosByPais")
     @ResponseBody
-    public Result EstadoByidPais(@PathVariable int IdPais) {
+    public Result EstadoByidPais(@RequestParam("IdPais") int IdPais) {
         return estadoDAOImplementation.EstadoByidPais(IdPais);
     }
 
-    @GetMapping("MunicipiosGetByIdEstado/{IdEstado}")
+    @GetMapping("MunicipiosGetByIdEstado")
     @ResponseBody
-    public Result municipioByIdEstado(@PathVariable int IdEstado) {
+    public Result municipioByIdEstado(@RequestParam("IdEstado") int IdEstado) {
         return municipioDAOImplementation.MunicipioByidEstado(IdEstado);
     }
 
-    @GetMapping("ColoniasGetByIdMunicipio/{IdMunicipio}")
+    @GetMapping("ColoniasGetByIdMunicipio")
     @ResponseBody
-    public Result ColoniaGetByIdMunicipio(@PathVariable int IdMunicipio) {
+    public Result ColoniaGetByIdMunicipio(@RequestParam("IdMunicipio") int IdMunicipio) {
         return coloniaDAOImplementation.ColoniaByMunicipio(IdMunicipio);
     }
 
+    // ========================= ELIMINAR DIRECCIÓN =========================
     @GetMapping("direccion/delete")
     public String DireccionDelete(@RequestParam int idDireccion,
             @RequestParam int idUsuario) {
         direccionDAOImplementation.delete(idDireccion);
-        return "redirect:/usuario/editarUsuario/" + idUsuario;
+        return "redirect:/usuario/editarUsuario?idUsuario=" + idUsuario;
     }
 
 }

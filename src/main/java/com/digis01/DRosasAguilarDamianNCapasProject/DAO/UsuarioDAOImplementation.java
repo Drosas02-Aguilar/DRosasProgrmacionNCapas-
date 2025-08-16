@@ -233,9 +233,8 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
 
         try {
 
-            result.correct = jdbcTemplate.execute("CALL UsuarioDireccionAdd(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (CallableStatementCallback<Boolean>) callablestatement -> {
+            result.correct = jdbcTemplate.execute("CALL USUARIODIRECCIONADD(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (CallableStatementCallback<Boolean>) callablestatement -> {
 
-                callablestatement.setString(1, usuario.getNombre());
                 callablestatement.setString(1, usuario.getNombre());
                 callablestatement.setString(2, usuario.getApellidopaterno());
                 callablestatement.setString(3, usuario.getApellidomaterno());
@@ -300,7 +299,6 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
                         callablestatement.execute();
 
                         result.correct = true;
-                        result.message = "Usuario actualizado correctamente";
                         return true;
                     });
 
@@ -330,6 +328,109 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
             result.errorMessage = ex.getLocalizedMessage();
             result.ex = ex;
         }
+        return result;
+    }
+
+    @Override
+    public Result GetAllUsuario() {
+        Result result = new Result();
+        result.objects = new ArrayList<>();
+
+        try {
+            jdbcTemplate.execute("{CALL USUARIOGETALL(?)}", (CallableStatementCallback<Object>) callableStatement -> {
+                callableStatement.registerOutParameter(1, java.sql.Types.REF_CURSOR);
+
+                callableStatement.execute();
+
+                try (ResultSet resultSet = (ResultSet) callableStatement.getObject(1)) {
+                    while (resultSet.next()) {
+                        Usuario usuario = new Usuario();
+
+                        usuario.setIdUsuario(resultSet.getInt("IdUsuario"));
+                        usuario.setNombre(resultSet.getString("Nombre"));
+                        usuario.setApellidopaterno(resultSet.getString("ApellidoPaterno"));
+                        usuario.setApellidomaterno(resultSet.getString("ApellidoMaterno"));
+                        usuario.setUsername(resultSet.getString("UserName"));
+                        usuario.setEmail(resultSet.getString("Email"));
+                        usuario.setPassword(resultSet.getString("Password"));
+                        usuario.setTelefono(resultSet.getString("Telefono"));
+                        usuario.setCurp(resultSet.getString("Curp"));
+                        usuario.setCelular(resultSet.getString("Celular"));
+                        usuario.setSexo(resultSet.getString("Sexo"));
+                        usuario.setTiposangre(resultSet.getString("TipoSangre"));
+                        usuario.setFechaNacimiento(resultSet.getDate("FechaNacimiento"));
+
+                        usuario.Rol = new Rol();
+                        usuario.Rol.setIdRol(resultSet.getInt("IdRol"));
+                        usuario.Rol.setNombre(resultSet.getString("NombreRol"));
+
+                        result.objects.add(usuario);
+                    }
+                }
+                return null;
+            });
+
+            result.correct = true;
+
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
+
+        return result;
+    }
+
+    @Override
+    public Result GetByiDUsuario(int IdUsuario) {
+
+        Result result = new Result();
+
+        try {
+            jdbcTemplate.execute("{CALL USUARIOGETID(?, ?)}", (CallableStatementCallback<Boolean>) callableStatement -> {
+                callableStatement.setInt(1, IdUsuario);
+                callableStatement.registerOutParameter(2, java.sql.Types.REF_CURSOR);
+
+                callableStatement.execute();
+
+                try (ResultSet resultSet = (ResultSet) callableStatement.getObject(2)) {
+                    if (resultSet.next()) {
+                        Usuario usuario = new Usuario();
+
+                        usuario.setIdUsuario(resultSet.getInt("IdUsuario"));
+                        usuario.setNombre(resultSet.getString("Nombre"));
+                        usuario.setApellidopaterno(resultSet.getString("ApellidoPaterno"));
+                        usuario.setApellidomaterno(resultSet.getString("ApellidoMaterno"));
+                        usuario.setUsername(resultSet.getString("UserName"));
+                        usuario.setEmail(resultSet.getString("Email"));
+                        usuario.setPassword(resultSet.getString("Password"));
+                        usuario.setFechaNacimiento(resultSet.getDate("FechaNacimiento"));
+                        usuario.setSexo(resultSet.getString("Sexo"));
+                        usuario.setTelefono(resultSet.getString("Telefono"));
+                        usuario.setCelular(resultSet.getString("Celular"));
+                        usuario.setCurp(resultSet.getString("Curp"));
+                        usuario.setTiposangre(resultSet.getString("TipoSangre"));
+
+                        usuario.Rol = new Rol();
+                        usuario.Rol.setIdRol(resultSet.getInt("IdRol"));
+
+                        result.object = usuario; 
+                        result.correct = true;
+                    } else {
+                        result.correct = false;
+                        result.errorMessage = "No se encontró el usuario con Id " + IdUsuario;
+                    }
+                }
+
+                return null;
+            });
+
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
+
         return result;
     }
 

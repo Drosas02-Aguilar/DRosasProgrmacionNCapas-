@@ -100,7 +100,7 @@ public class DireccionDAOImplementation implements IDireccionDAO {
     public Result getbyid(int idDireccion) {
         Result result = new Result();
         try {
-            jdbcTemplate.execute("CALL GetByIdDireccion(?, ?)",
+            jdbcTemplate.execute("CALL GetByyIdDireccion(?, ?)",
                 (CallableStatementCallback<Boolean>) callablestatement -> {
                     callablestatement.setInt(1, idDireccion);
                     callablestatement.registerOutParameter(2, Types.REF_CURSOR);

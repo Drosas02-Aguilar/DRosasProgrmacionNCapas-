@@ -173,13 +173,7 @@ public class Usuario {
 
     }
 
-    public String getDireccion() {
-        return Direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        Direccion = direccion;
-    }
+    
 
     public String getCelular() {
         return Celular;
