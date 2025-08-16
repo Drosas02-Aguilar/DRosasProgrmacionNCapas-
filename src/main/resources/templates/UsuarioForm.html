@@ -198,7 +198,7 @@
                             <span class="error-msg"></span>
                             <span class="text-danger"
                                               th:if="${#fields.hasErrors('Email')}"
-                                              th:errors="*{Email}">
+                                              th:errors="*{ApellidoPaterno}">
                                             Message error
                                         </span>
                         </div>
@@ -297,7 +297,7 @@
                         <!-- Catálogos para cascada -->
                         <div class="col-md-4">
                             <label class="form-label fw-bold">País</label>
-                            <select id="paisddl" class="form-select" aria-label="Default select example"  th:field="*{direcciones[0].IdDireccion}>
+                            <select id="paisddl" class="form-select" aria-label="Default select example" >
                                 <option value="" selected disabled>-- Selecciona un país --</option>
                                 <option th:each="pais : ${paises}"
                                         th:value="${pais.IdPais}"  th:text="${pais.nombre}"></option>
