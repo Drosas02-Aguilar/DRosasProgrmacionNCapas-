@@ -332,56 +332,6 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
     }
 
     @Override
-    public Result GetAllUsuario() {
-        Result result = new Result();
-        result.objects = new ArrayList<>();
-
-        try {
-            jdbcTemplate.execute("{CALL USUARIOGETALL(?)}", (CallableStatementCallback<Object>) callableStatement -> {
-                callableStatement.registerOutParameter(1, java.sql.Types.REF_CURSOR);
-
-                callableStatement.execute();
-
-                try (ResultSet resultSet = (ResultSet) callableStatement.getObject(1)) {
-                    while (resultSet.next()) {
-                        Usuario usuario = new Usuario();
-
-                        usuario.setIdUsuario(resultSet.getInt("IdUsuario"));
-                        usuario.setNombre(resultSet.getString("Nombre"));
-                        usuario.setApellidopaterno(resultSet.getString("ApellidoPaterno"));
-                        usuario.setApellidomaterno(resultSet.getString("ApellidoMaterno"));
-                        usuario.setUsername(resultSet.getString("UserName"));
-                        usuario.setEmail(resultSet.getString("Email"));
-                        usuario.setPassword(resultSet.getString("Password"));
-                        usuario.setTelefono(resultSet.getString("Telefono"));
-                        usuario.setCurp(resultSet.getString("Curp"));
-                        usuario.setCelular(resultSet.getString("Celular"));
-                        usuario.setSexo(resultSet.getString("Sexo"));
-                        usuario.setTiposangre(resultSet.getString("TipoSangre"));
-                        usuario.setFechaNacimiento(resultSet.getDate("FechaNacimiento"));
-
-                        usuario.Rol = new Rol();
-                        usuario.Rol.setIdRol(resultSet.getInt("IdRol"));
-                        usuario.Rol.setNombre(resultSet.getString("NombreRol"));
-
-                        result.objects.add(usuario);
-                    }
-                }
-                return null;
-            });
-
-            result.correct = true;
-
-        } catch (Exception ex) {
-            result.correct = false;
-            result.errorMessage = ex.getLocalizedMessage();
-            result.ex = ex;
-        }
-
-        return result;
-    }
-
-    @Override
     public Result GetByiDUsuario(int IdUsuario) {
 
         Result result = new Result();

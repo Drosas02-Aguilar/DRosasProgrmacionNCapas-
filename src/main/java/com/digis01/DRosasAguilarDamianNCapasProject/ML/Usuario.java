@@ -14,46 +14,28 @@ public class Usuario {
     private int IdUsuario;
     private String Username;
     private String Nombre;
-    @Size(min = 2, max = 20, message = "Texto de entre 2 y 20 letras")
-    @NotEmpty(message = "Informacion necesaria")
     private String Apellidopaterno;
-    
-    @Size(min = 2, max = 20, message = "Texto de entre 2 y 20 letras")
-    @NotEmpty(message = "Informacion necesaria")
     private String Apellidomaterno;
-    
-    @NotBlank(message = "El correo electrónico es obligatorio")
-    @Pattern(
-        regexp = "/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$/",
-        message = "Formato de correo electrónico inválido"
-    )
     private String Email;
-    
-    
+
     private String Password;
     private String Telefono;
     private String Curp;
     private String Direccion;
     private String Celular;
-    
-    @NotBlank(message = "Selecciona el sexo")
     private String Sexo;
     private String Tiposangre;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date FechaNacimiento;
     public Rol Rol;
-    /*  public Colonia Colonia;
-    public Estado Estado;
-    public Municipio Municipio;
-    public Pais Pais;
-    public Direccion direccion;*/
-    
     public List<Direccion> direcciones;
-
     public Usuario() {
+        this.direcciones = new ArrayList<>();
     }
 
-    public Usuario(int idUsuario, String username, String nombre, String apellidopaterno, String apellidomaterno, String email, String password, String telefono, String direccion, String celular, String sexo, String tiposangre, Date fechaNacimiento, int idrol) {
+    public Usuario(int idUsuario, String username, String nombre, String apellidopaterno, String apellidomaterno,
+                   String email, String password, String telefono, String direccion, String celular, String sexo,
+                   String tiposangre, Date fechaNacimiento, int idrol, String curp) {
         this.IdUsuario = idUsuario;
         this.Username = username;
         this.Nombre = nombre;
@@ -62,149 +44,58 @@ public class Usuario {
         this.Email = email;
         this.Password = password;
         this.Telefono = telefono;
-        this.Curp = apellidopaterno;
+        this.Curp = curp; // corregido
         this.Direccion = direccion;
         this.Celular = celular;
         this.Sexo = sexo;
         this.Tiposangre = tiposangre;
         this.FechaNacimiento = fechaNacimiento;
         this.direcciones = new ArrayList<>();
-
+        // this.Rol = new Rol(idrol, null); // si lo necesitas aquí
     }
 
-    public Rol getRol() {
-        return Rol;
-    }
+    public Rol getRol() { return Rol; }
+    public void setRol(Rol Rol) { this.Rol = Rol; }
 
-    public void setRol(Rol Rol) {
-        this.Rol = Rol;
-    }
+    public List<Direccion> getDirecciones() { return direcciones; }
+    public void setDirecciones(List<Direccion> direcciones) { this.direcciones = direcciones; }
 
-    public List<Direccion> getDirecciones() {
-        return direcciones;
-    }
+    public int getIdUsuario() { return IdUsuario; }
+    public void setIdUsuario(int idUsuario) { IdUsuario = idUsuario; }
 
-    public void setDirecciones(List<Direccion> direcciones) {
-        this.direcciones = direcciones;
-    }
+    public String getNombre() { return Nombre; }
+    public void setNombre(String nombre) { Nombre = nombre; }
 
-    // Getters y Setters
-    public int getIdUsuario() {
-        return IdUsuario;
-    }
+    public String getUsername() { return Username; }
+    public void setUsername(String username) { Username = username; }
 
-    public void setIdUsuario(int idUsuario) {
-        IdUsuario = idUsuario;
-    }
+    public String getApellidopaterno() { return Apellidopaterno; }
+    public void setApellidopaterno(String apellidopaterno) { Apellidopaterno = apellidopaterno; }
 
-    public String getNombre() {
-        return Nombre;
-    }
+    public String getApellidomaterno() { return Apellidomaterno; }
+    public void setApellidomaterno(String apellidomaterno) { Apellidomaterno = apellidomaterno; }
 
-    public void setNombre(String nombre) {
-        Nombre = nombre;
-    }
+    public String getEmail() { return Email; }
+    public void setEmail(String email) { Email = email; }
 
-    public String getUsername() {
-        return Username;
-    }
+    public String getPassword() { return Password; }
+    public void setPassword(String password) { Password = password; }
 
-    public void setUsername(String username) {
-        Username = username;
-    }
+    public String getTelefono() { return Telefono; }
+    public void setTelefono(String telefono) { Telefono = telefono; }
 
-    public String getApellidopaterno() {
-        return Apellidopaterno;
-    }
+    public String getCurp() { return Curp; }
+    public void setCurp(String curp) { Curp = curp; }
 
-    public void setApellidopaterno(String apellidopaterno) {
+    public String getCelular() { return Celular; }
+    public void setCelular(String celular) { Celular = celular; }
 
-        Apellidopaterno = apellidopaterno;
+    public String getSexo() { return Sexo; }
+    public void setSexo(String sexo) { Sexo = sexo; }
 
-    }
+    public String getTiposangre() { return Tiposangre; }
+    public void setTiposangre(String tiposangre) { Tiposangre = tiposangre; }
 
-    public String getApellidomaterno() {
-        return Apellidomaterno; //aqui esta el error
-    }
-
-    public void setApellidomaterno(String apellidomaterno) {
-
-        Apellidomaterno = apellidomaterno;
-
-    }
-
-    public String getEmail() {
-        return Email;
-    }
-
-    public void setEmail(String email) {
-
-        Email = email;
-
-    }
-
-    public String getPassword() {
-        return Password;
-    }
-
-    public void setPassword(String password) {
-
-        Password = password;
-
-    }
-
-    public String getTelefono() {
-        return Telefono;
-    }
-
-    public void setTelefono(String telefono) {
-
-        Telefono = telefono;
-
-    }
-
-    public String getCurp() {
-        return Curp;
-    }
-
-    public void setCurp(String curp) {
-
-        Curp = curp;
-
-    }
-
-    
-
-    public String getCelular() {
-        return Celular;
-    }
-
-    public void setCelular(String celular) {
-        Celular = celular;
-    }
-
-    public String getSexo() {
-        return Sexo;
-    }
-
-    public void setSexo(String sexo) {
-        Sexo = sexo;
-    }
-
-    public String getTiposangre() {
-        return Tiposangre;
-    }
-
-    public void setTiposangre(String tiposangre) {
-        Tiposangre = tiposangre;
-    }
-
-    public Date getFechaNacimiento() {
-        return FechaNacimiento;
-    }
-
-    public void setFechaNacimiento(Date FechaNacimiento) {
-        this.FechaNacimiento = FechaNacimiento;
-    }
-
+    public Date getFechaNacimiento() { return FechaNacimiento; }
+    public void setFechaNacimiento(Date FechaNacimiento) { this.FechaNacimiento = FechaNacimiento; }
 }
