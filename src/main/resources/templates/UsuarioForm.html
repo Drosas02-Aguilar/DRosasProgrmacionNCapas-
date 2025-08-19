@@ -26,6 +26,7 @@
     .btn-gradient{ background:linear-gradient(90deg,var(--grad-a),var(--grad-b)); color:#fff; border:none }
     .btn-gradient:hover{ filter:brightness(.96); color:#fff }
     .action-bar{ position:sticky; bottom:0; background:#fff; z-index:1000; border-top:1px solid #eef0f3; backdrop-filter:blur(6px) }
+    .avatar{ max-width:150px; max-height:150px; border-radius:10px; box-shadow:0 0 6px #ccc; object-fit:cover }
   </style>
 </head>
 <body>
@@ -53,6 +54,7 @@
         method="post"
         th:action="${mode == 'full'} ? @{/usuario/add} : @{/usuario/update}"
         id="formUsuario"
+        enctype="multipart/form-data"
         novalidate>
 
     <input type="hidden" th:field="*{idUsuario}"/>
@@ -61,6 +63,22 @@
     <div class="card p-4 mb-4">
       <h5 class="section-title"><i class="bi bi-person-lines-fill"></i><span>Datos personales</span></h5>
       <div class="row g-3">
+
+        <!-- FOTO DE USUARIO -->
+        <div class="col-12">
+          <label class="form-label fw-bold">Foto de usuario</label>
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <img id="userFotoPreview" class="avatar" alt="Vista previa">
+            <div class="flex-grow-1">
+              <input type="file" id="userFotoInput" name= "userFotoInput" class="form-control" accept="image/*">
+              <small class="text-muted d-block mt-1">Formatos: JPG</small>
+              <button type="button" id="btnQuitarUserFoto" class="btn btn-sm btn-outline-secondary mt-2">
+              </button>
+            </div>
+          </div>
+          <span class="error-msg" id="userFotoMsg"></span>
+          <!-- Importante: SIN th:field para no depender del modelo -->
+        </div>
 
         <div class="col-md-4">
           <label class="form-label fw-bold">Nombre</label>
@@ -407,6 +425,63 @@
 
 <!-- ===================== SCRIPTS ===================== -->
 <script>
+// ========= Avatar por defecto + Preview + Base64 (dentro del form Usuario) =========
+(function(){
+  const input   = document.getElementById('userFotoInput');
+  const preview = document.getElementById('userFotoPreview');
+  const hidden  = document.getElementById('userFotoBase64');
+  const msg     = document.getElementById('userFotoMsg');
+  const btnQ    = document.getElementById('btnQuitarUserFoto');
+
+  // SVG avatar por defecto (Data URL)
+  const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><rect width='128' height='128' fill='%23e9ecef'/><circle cx='64' cy='48' r='24' fill='%23adb5bd'/><path d='M24 112c0-22 18-32 40-32s40 10 40 32' fill='%23adb5bd'/></svg>";
+
+  function setDefault(){
+    if (preview) preview.src = DEFAULT_AVATAR;
+    if (hidden)  hidden.value = "";
+    if (msg)     msg.textContent = "";
+  }
+
+  // Inicial
+  setDefault();
+
+  function resetInput(){
+    if (input) input.value = "";
+    setDefault();
+  }
+
+  if (btnQ) btnQ.addEventListener('click', resetInput);
+
+  if (!input || !preview || !hidden) return;
+
+  input.addEventListener('change', function(){
+    const f = this.files && this.files[0];
+    if(!f){ return; }
+
+    const allowed = ['image/jpeg','image/png','image/webp'];
+    if (!allowed.includes(f.type)){
+      if (msg) msg.textContent = 'Formato no válido. Usa JPG, PNG o WebP.';
+      resetInput();
+      return;
+    }
+    if (f.size > 2 * 1024 * 1024){
+      if (msg) msg.textContent = 'La imagen excede 2 MB.';
+      resetInput();
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = e => {
+      const dataUrl = e.target.result;        // DataURL base64 (incluye prefijo)
+      preview.src = dataUrl;                  // Mostrar preview
+      hidden.value = dataUrl;                 // Guardar en campo oculto
+      if (msg) msg.textContent = "";
+    };
+    reader.readAsDataURL(f);
+  });
+})();
+
+// ========= Validaciones existentes =========
 function msgSpanOf(el){return el.closest('.col-md-4, .col-md-3, .col-md-6, .col-md-12, .col, .form-group')?.querySelector('.error-msg')||el.parentElement.querySelector('.error-msg')||el.nextElementSibling;}
 function setValid(el,msg=""){el.classList.remove('error');el.classList.add('correct');const s=msgSpanOf(el);if(s)s.textContent=msg;}
 function setInvalid(el,msg){el.classList.remove('correct');el.classList.add('error');const s=msgSpanOf(el);if(s)s.textContent=msg;}
@@ -427,8 +502,14 @@ function CalleVal(el){const v=(el.value||'').trim();if(v.length<3)return setInva
 function PuertaVal(el){const v=(el.value||'').trim();if(v==='')return setValid(el);if(!/^[A-Za-z0-9\-\/]{1,10}$/.test(v))return setInvalid(el,'Máx 10, solo A-Z,0-9,-,/');setValid(el);}
 function IdPosVal(el){const v=el.value;if(!v||v==='0')return setInvalid(el,'Selecciona una opción.');setValid(el);}
 
-document.addEventListener('submit',function(e){const form=e.target;const invalid=form.querySelector('.error, .is-invalid');if(invalid){e.preventDefault();alert('Revisa los campos marcados en rojo.');}},true);
+// Intercepta envíos con campos inválidos
+document.addEventListener('submit',function(e){
+  const form=e.target;
+  const invalid=form.querySelector('.error, .is-invalid');
+  if(invalid){e.preventDefault();alert('Revisa los campos marcados en rojo.');}
+},true);
 
+// ====== AJAX Cascada País/Estado/Municipio/Colonia ======
 $(document).ready(function(){
   // País → Estado
   $("#paisddl").change(function(){

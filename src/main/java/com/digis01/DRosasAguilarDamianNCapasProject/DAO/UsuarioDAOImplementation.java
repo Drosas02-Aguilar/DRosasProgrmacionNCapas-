@@ -63,6 +63,7 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
                         usuario.setCelular(resultSet.getString("Celular"));
                         usuario.setCurp(resultSet.getString("Curp"));
                         usuario.setTiposangre(resultSet.getString("TipoSangre"));
+                        usuario.setImagen(resultSet.getString("Imagen"));
 
                         // Rol
                         int idRol = resultSet.getInt("IdRol");
@@ -176,6 +177,7 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
                     usuario.Rol = new Rol();
                     usuario.Rol.setIdRol(resultSet.getInt("idrol"));
                     usuario.Rol.setNombre(resultSet.getString("NombreRol"));
+                    usuario.setImagen(resultSet.getString("Imagen"));
 
                     int idDireccion;
                     if ((idDireccion = resultSet.getInt("IdDireccion")) != 0) {
@@ -227,14 +229,16 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
     }
 
     @Override
-    public Result Add(Usuario usuario) {
+public Result Add(Usuario usuario) {
 
-        Result result = new Result();
+    Result result = new Result();
 
-        try {
+    try {
+        result.correct = jdbcTemplate.execute(
+            "CALL USUARIODIRECCIONADD(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (CallableStatementCallback<Boolean>) callablestatement -> {
 
-            result.correct = jdbcTemplate.execute("CALL USUARIODIRECCIONADD(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (CallableStatementCallback<Boolean>) callablestatement -> {
-
+                // Datos de USUARIO
                 callablestatement.setString(1, usuario.getNombre());
                 callablestatement.setString(2, usuario.getApellidopaterno());
                 callablestatement.setString(3, usuario.getApellidomaterno());
@@ -247,39 +251,40 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
                 callablestatement.setString(10, usuario.getCurp());
                 callablestatement.setString(11, usuario.getCelular());
                 callablestatement.setString(12, usuario.getTelefono());
-                callablestatement.setInt(13, usuario.Rol.getIdRol());
-                callablestatement.setString(14, usuario.direcciones.get(0).getCalle());
-                callablestatement.setString(15, usuario.direcciones.get(0).getNumeroInterior());
-                callablestatement.setString(16, usuario.direcciones.get(0).getNumeroExterior());
-                callablestatement.setInt(17, usuario.direcciones.get(0).Colonia.getIdColonia());
+                callablestatement.setInt(13, usuario.getRol().getIdRol());
+
+                // Nuevo parámetro IMAGEN (CLOB)
+                if (usuario.getImagen() != null) {
+                    callablestatement.setString(14, usuario.getImagen()); // Base64
+                } else {
+                    callablestatement.setNull(14, java.sql.Types.CLOB);
+                }
+
+                // Datos de DIRECCIÓN
+                callablestatement.setString(15, usuario.getDirecciones().get(0).getCalle());
+                callablestatement.setString(16, usuario.getDirecciones().get(0).getNumeroInterior());
+                callablestatement.setString(17, usuario.getDirecciones().get(0).getNumeroExterior());
+                callablestatement.setInt(18, usuario.getDirecciones().get(0).getColonia().getIdColonia());
 
                 int isCorrect = callablestatement.executeUpdate();
 
-                if (isCorrect == -1) {
-
-                    return true;
-                }
-
-                return false;
-
+                return isCorrect == -1;
             });
 
-        } catch (Exception ex) {
-
-            result.correct = false;
-            result.errorMessage = ex.getLocalizedMessage();
-            result.ex = ex;
-
-        }
-        return result;
-
+    } catch (Exception ex) {
+        result.correct = false;
+        result.errorMessage = ex.getLocalizedMessage();
+        result.ex = ex;
     }
+    return result;
+}
+
 
     @Override
     public Result update(Usuario usuario) {
         Result result = new Result();
         try {
-            jdbcTemplate.execute("CALL USUARIOUPDATE(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            jdbcTemplate.execute("CALL USUARIOUPDATE(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)",
                     (CallableStatementCallback<Boolean>) callablestatement -> {
                         callablestatement.setInt(1, usuario.getIdUsuario());
                         callablestatement.setString(2, usuario.getNombre());
@@ -295,6 +300,8 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
                         callablestatement.setString(12, usuario.getCurp());
                         callablestatement.setString(13, usuario.getTiposangre());
                         callablestatement.setInt(14, usuario.Rol.getIdRol());
+                        callablestatement.setString(15, usuario.getImagen());
+                        
 
                         callablestatement.execute();
 
@@ -363,6 +370,8 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
 
                         usuario.Rol = new Rol();
                         usuario.Rol.setIdRol(resultSet.getInt("IdRol"));
+                        
+                        usuario.setImagen(resultSet.getString("Imagen"));
 
                         result.object = usuario; 
                         result.correct = true;

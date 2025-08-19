@@ -7,7 +7,7 @@ import com.digis01.DRosasAguilarDamianNCapasProject.DAO.PaisDAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.RolDAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.UsuarioDAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.DireccionDAOImplementation;
-
+import java.util.Base64;
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Colonia;
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Direccion;
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Estado;
@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequestMapping("usuario")
@@ -91,7 +92,9 @@ public class UsuarioController {
 
     // ========================= GUARDAR NUEVO USUARIO =========================
     @PostMapping("add")
-    public String Add(@Valid Usuario usuario, BindingResult br, Model model) {
+    public String Add(@Valid Usuario usuario, BindingResult br, Model model,@RequestParam("userFotoInput") MultipartFile imagen) {
+        
+        
         if (br.hasErrors()) {
             Result rolesRs = rolDAOImplementation.GetAllRol();
             Result paisesRs = paisDAOImplementation.GetAllPais();
@@ -101,9 +104,29 @@ public class UsuarioController {
             model.addAttribute("action", "add");
             model.addAttribute("Usuario", usuario);
             return "UsuarioForm";
+        }else{
+        
+          if (imagen != null) {
+                String nombre = imagen.getOriginalFilename();
+                //archivo.jpg
+                //[archivo,jpg]
+                String extension = nombre.split("\\.")[1];
+                if (extension.equals("jpg")) {
+                    try {
+                        byte[] bytes = imagen.getBytes();
+                        String base64Image = Base64.getEncoder().encodeToString(bytes);
+                        usuario.setImagen(base64Image);
+                    } catch (Exception ex) {
+                        System.out.println("Error");
+                    }
+
+                }
+        
         }
         usuarioDAOImplementation.Add(usuario);
         return "redirect:/usuario";
+    }
+        
     }
 
     // ========================= EDITAR USUARIO (VISTA DETALLE/EDICIÓN) =========================

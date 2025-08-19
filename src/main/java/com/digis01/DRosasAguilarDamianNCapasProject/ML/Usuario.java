@@ -29,6 +29,9 @@ public class Usuario {
     private Date FechaNacimiento;
     public Rol Rol;
     public List<Direccion> direcciones;
+    private String Imagen;
+    
+    
     public Usuario() {
         this.direcciones = new ArrayList<>();
     }
@@ -98,4 +101,15 @@ public class Usuario {
 
     public Date getFechaNacimiento() { return FechaNacimiento; }
     public void setFechaNacimiento(Date FechaNacimiento) { this.FechaNacimiento = FechaNacimiento; }
+
+    public String getImagen() {
+        return Imagen;
+    }
+
+    public void setImagen(String Imagen) {
+        this.Imagen = Imagen;
+    }
+
+
+
 }
