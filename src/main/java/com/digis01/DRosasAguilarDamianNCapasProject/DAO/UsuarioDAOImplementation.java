@@ -63,7 +63,6 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
                         usuario.setCelular(resultSet.getString("Celular"));
                         usuario.setCurp(resultSet.getString("Curp"));
                         usuario.setTiposangre(resultSet.getString("TipoSangre"));
-                        usuario.setImagen(resultSet.getString("Imagen"));
 
                         // Rol
                         int idRol = resultSet.getInt("IdRol");
@@ -75,6 +74,7 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
                         } else {
                             usuario.Rol = null;
                         }
+                        usuario.setImagen(resultSet.getString("Imagen"));
 
                         usuario.direcciones = new ArrayList<>();
                         result.objects.add(usuario);
@@ -229,56 +229,55 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
     }
 
     @Override
-public Result Add(Usuario usuario) {
+    public Result Add(Usuario usuario) {
 
-    Result result = new Result();
+        Result result = new Result();
 
-    try {
-        result.correct = jdbcTemplate.execute(
-            "CALL USUARIODIRECCIONADD(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            (CallableStatementCallback<Boolean>) callablestatement -> {
+        try {
+            result.correct = jdbcTemplate.execute(
+                    "CALL USUARIODIRECCIONADD(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (CallableStatementCallback<Boolean>) callablestatement -> {
 
-                // Datos de USUARIO
-                callablestatement.setString(1, usuario.getNombre());
-                callablestatement.setString(2, usuario.getApellidopaterno());
-                callablestatement.setString(3, usuario.getApellidomaterno());
-                callablestatement.setString(4, usuario.getSexo());
-                callablestatement.setString(5, usuario.getTiposangre());
-                callablestatement.setDate(6, new java.sql.Date(usuario.getFechaNacimiento().getTime()));
-                callablestatement.setString(7, usuario.getUsername());
-                callablestatement.setString(8, usuario.getEmail());
-                callablestatement.setString(9, usuario.getPassword());
-                callablestatement.setString(10, usuario.getCurp());
-                callablestatement.setString(11, usuario.getCelular());
-                callablestatement.setString(12, usuario.getTelefono());
-                callablestatement.setInt(13, usuario.getRol().getIdRol());
+                        // Datos de USUARIO
+                        callablestatement.setString(1, usuario.getNombre());
+                        callablestatement.setString(2, usuario.getApellidopaterno());
+                        callablestatement.setString(3, usuario.getApellidomaterno());
+                        callablestatement.setString(4, usuario.getSexo());
+                        callablestatement.setString(5, usuario.getTiposangre());
+                        callablestatement.setDate(6, new java.sql.Date(usuario.getFechaNacimiento().getTime()));
+                        callablestatement.setString(7, usuario.getUsername());
+                        callablestatement.setString(8, usuario.getEmail());
+                        callablestatement.setString(9, usuario.getPassword());
+                        callablestatement.setString(10, usuario.getCurp());
+                        callablestatement.setString(11, usuario.getCelular());
+                        callablestatement.setString(12, usuario.getTelefono());
+                        callablestatement.setInt(13, usuario.getRol().getIdRol());
 
-                // Nuevo parámetro IMAGEN (CLOB)
-                if (usuario.getImagen() != null) {
-                    callablestatement.setString(14, usuario.getImagen()); // Base64
-                } else {
-                    callablestatement.setNull(14, java.sql.Types.CLOB);
-                }
+                        // Nuevo parámetro IMAGEN (CLOB)
+                        if (usuario.getImagen() != null) {
+                            callablestatement.setString(14, usuario.getImagen()); // Base64
+                        } else {
+                            callablestatement.setNull(14, java.sql.Types.CLOB);
+                        }
 
-                // Datos de DIRECCIÓN
-                callablestatement.setString(15, usuario.getDirecciones().get(0).getCalle());
-                callablestatement.setString(16, usuario.getDirecciones().get(0).getNumeroInterior());
-                callablestatement.setString(17, usuario.getDirecciones().get(0).getNumeroExterior());
-                callablestatement.setInt(18, usuario.getDirecciones().get(0).getColonia().getIdColonia());
+                        // Datos de DIRECCIÓN
+                        callablestatement.setString(15, usuario.getDirecciones().get(0).getCalle());
+                        callablestatement.setString(16, usuario.getDirecciones().get(0).getNumeroInterior());
+                        callablestatement.setString(17, usuario.getDirecciones().get(0).getNumeroExterior());
+                        callablestatement.setInt(18, usuario.getDirecciones().get(0).getColonia().getIdColonia());
 
-                int isCorrect = callablestatement.executeUpdate();
+                        int isCorrect = callablestatement.executeUpdate();
 
-                return isCorrect == -1;
-            });
+                        return isCorrect == -1;
+                    });
 
-    } catch (Exception ex) {
-        result.correct = false;
-        result.errorMessage = ex.getLocalizedMessage();
-        result.ex = ex;
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
+        return result;
     }
-    return result;
-}
-
 
     @Override
     public Result update(Usuario usuario) {
@@ -301,7 +300,6 @@ public Result Add(Usuario usuario) {
                         callablestatement.setString(13, usuario.getTiposangre());
                         callablestatement.setInt(14, usuario.Rol.getIdRol());
                         callablestatement.setString(15, usuario.getImagen());
-                        
 
                         callablestatement.execute();
 
@@ -370,10 +368,10 @@ public Result Add(Usuario usuario) {
 
                         usuario.Rol = new Rol();
                         usuario.Rol.setIdRol(resultSet.getInt("IdRol"));
-                        
+
                         usuario.setImagen(resultSet.getString("Imagen"));
 
-                        result.object = usuario; 
+                        result.object = usuario;
                         result.correct = true;
                     } else {
                         result.correct = false;
