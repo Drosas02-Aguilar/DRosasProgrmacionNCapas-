@@ -21,7 +21,7 @@ public class Usuario {
     private String Password;
     private String Telefono;
     private String Curp;
-    private String Direccion;
+ //   private String Direccion;
     private String Celular;
     private String Sexo;
     private String Tiposangre;
@@ -48,7 +48,7 @@ public class Usuario {
         this.Password = password;
         this.Telefono = telefono;
         this.Curp = curp; // corregido
-        this.Direccion = direccion;
+//        this.Direccion = direccion;
         this.Celular = celular;
         this.Sexo = sexo;
         this.Tiposangre = tiposangre;

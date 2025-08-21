@@ -64,7 +64,7 @@
       <h5 class="section-title"><i class="bi bi-person-lines-fill"></i><span>Datos personales</span></h5>
       <div class="row g-3">
 
-        <!-- FOTO DE USUARIO -->
+        <!-- ======= FOTO DE USUARIO ==========-->
         <div class="col-12">
           <label class="form-label fw-bold">Foto de usuario</label>
           <div class="d-flex align-items-center gap-3 flex-wrap">
@@ -73,11 +73,10 @@
               <input type="file" id="userFotoInput" name= "userFotoInput" class="form-control" accept="image/*">
               <small class="text-muted d-block mt-1">Formatos: JPG</small>
               <button type="button" id="btnQuitarUserFoto" class="btn btn-sm btn-outline-secondary mt-2">
-              </button>
+              Limpiar foto</button>
             </div>
           </div>
           <span class="error-msg" id="userFotoMsg"></span>
-          <!-- Importante: SIN th:field para no depender del modelo -->
         </div>
 
         <div class="col-md-4">
@@ -432,6 +431,17 @@
   const hidden  = document.getElementById('userFotoBase64');
   const msg     = document.getElementById('userFotoMsg');
   const btnQ    = document.getElementById('btnQuitarUserFoto');
+  
+  
+  document.getElementById('userFotoInput').addEventListener('change', function(event) {
+    var reader = new FileReader();
+    reader.onload = function() {
+        var output = document.getElementById('userFotoPreview');
+        output.src = reader.result;
+        output.style.display = 'block';
+    }
+    reader.readAsDataURL(event.target.files[0]);
+});
 
   // SVG avatar por defecto (Data URL)
   const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><rect width='128' height='128' fill='%23e9ecef'/><circle cx='64' cy='48' r='24' fill='%23adb5bd'/><path d='M24 112c0-22 18-32 40-32s40 10 40 32' fill='%23adb5bd'/></svg>";
