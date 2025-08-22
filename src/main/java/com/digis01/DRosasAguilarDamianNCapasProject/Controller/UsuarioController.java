@@ -679,6 +679,8 @@ public class UsuarioController {
         List<ErrorCM> errores = new ArrayList<>();
         if (usuarios == null) {
             return errores;
+      
+        
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
