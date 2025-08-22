@@ -17,19 +17,34 @@ import com.digis01.DRosasAguilarDamianNCapasProject.ML.Pais;
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Result;
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Rol;
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Path;
 
 import jakarta.validation.Valid;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +59,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.ui.Model;
+import jakarta.servlet.http.HttpSession;
+
+import java.io.*;
+import java.nio.file.*;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Controller
 @RequestMapping("usuario")
@@ -363,51 +392,113 @@ public class UsuarioController {
     }
 
     @PostMapping("cargamasiva")
-    public String CargaMasiva(@RequestParam("archivo") MultipartFile file, Model model) {
+    public String CargaMasiva(@RequestParam("archivo") MultipartFile file, Model model, HttpSession session) {
 
-        if (file.getOriginalFilename().split("\\.")[1].equals("txt")) {
-            List<Usuario> usuarios = ProcesarTXT(file);
-            List<ErrorCM> errores = ValidarDatos(usuarios);
+        model.addAttribute("archivoCorrecto", false);
 
-            if (errores.isEmpty()) {
-                model.addAttribute("listaErrores", errores);
-                model.addAttribute("archivoCorrecto", true);
-            } else {
-                model.addAttribute("listaErrores", errores);
-                model.addAttribute("archivoCorrecto", false);
+        String root = System.getProperty("user.dir");
+        String rutaArchivo = "/src/main/resources/archivos/";
+
+        // usa segundos correctos 'ss'
+        String fechaSubida = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String rutaFinal = root + rutaArchivo + fechaSubida + "_" + file.getOriginalFilename();
+
+        try {
+            // asegúrate de que exista el directorio
+            File dir = new File(root + rutaArchivo);
+            if (!dir.exists()) {
+                dir.mkdirs();
             }
+
+            file.transferTo(new File(rutaFinal));
+        } catch (Exception ex) {
+            System.out.println("Error al guardar archivo: " + ex.getMessage());
+            model.addAttribute("listaErrores", List.of(new ErrorCM(0, "", "No se pudo guardar el archivo.")));
+            return "CargaMasiva";
+        }
+
+        List<Usuario> usuarios;
+        List<ErrorCM> errores;
+
+        // Detecta extensión de forma segura
+        String[] parts = file.getOriginalFilename().split("\\.");
+        String ext = parts.length > 1 ? parts[parts.length - 1].toLowerCase() : "";
+
+        if ("txt".equals(ext)) {
+            usuarios = ProcesarTXT(new File(rutaFinal));
+        } else if ("xlsx".equals(ext)) {
+            usuarios = ProcesarExcel(new File(rutaFinal));
+        } else {
+            model.addAttribute("listaErrores", List.of(new ErrorCM(0, ext, "Extensión no soportada")));
+            return "CargaMasiva";
+        }
+
+        errores = ValidarDatos(usuarios);
+
+        if (errores.isEmpty()) {
+            model.addAttribute("listaErrores", errores);
+            model.addAttribute("archivoCorrecto", true);
+
+            session.setAttribute("path", rutaFinal);
 
         } else {
-            //Excel
-
-            List<Usuario> usuarios = ProcesarExcel(file);
-            List<ErrorCM> errores = ValidarDatos(usuarios);
-
-            if (errores.isEmpty()) {
-                model.addAttribute("listaErrores", errores);
-                model.addAttribute("archivoCorrecto", true);
-            } else {
-                model.addAttribute("listaErrores", errores);
-                model.addAttribute("archivoCorrecto", false);
-            }
-
+            model.addAttribute("listaErrores", errores);
+            model.addAttribute("archivoCorrecto", false);
+            // por seguridad, limpia el path si hay errores
+            session.removeAttribute("path");
         }
 
         return "CargaMasiva";
     }
 
-    private List<Usuario> ProcesarTXT(MultipartFile file) {
+    @GetMapping("cargamasiva/procesar")
+    public String CargaMasivaProcesar(HttpSession session) {
         try {
-            InputStream inputStream = file.getInputStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            Object pathObj = session.getAttribute("path");
+            if (pathObj == null) {
+                // No hay archivo listo para procesar (probablemente no pasaste validación o no se guardó el path)
+                return "redirect:/usuario/cargamasiva";
+            }
 
-            String linea = "";
+            String ruta = pathObj.toString();
+            List<Usuario> usuarios;
+
+            String ext = ruta.contains(".") ? ruta.substring(ruta.lastIndexOf('.') + 1).toLowerCase() : "";
+
+            if ("txt".equals(ext)) {
+                usuarios = ProcesarTXT(new File(ruta));
+            } else if ("xlsx".equals(ext)) {
+                usuarios = ProcesarExcel(new File(ruta));
+            } else {
+                // extensión inesperada
+                return "redirect:/usuario/cargamasiva";
+            }
+
+            if (usuarios != null) {
+                for (Usuario usuario : usuarios) {
+                    usuarioDAOImplementation.Add(usuario);
+                }
+            }
+
+            // Limpia la sesión al terminar
+            session.removeAttribute("path");
+
+        } catch (Exception ex) {
+            System.out.println("Error en procesar: " + ex.getLocalizedMessage());
+        }
+
+        return "redirect:/usuario";
+    }
+
+    private List<Usuario> ProcesarTXT(File file) {
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
+
+            String linea;
             List<Usuario> usuarios = new ArrayList<>();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             sdf.setLenient(false);
 
             while ((linea = bufferedReader.readLine()) != null) {
-
                 String[] campos = linea.split("\\|");
 
                 Usuario usuario = new Usuario();
@@ -424,6 +515,7 @@ public class UsuarioController {
                         usuario.setFechaNacimiento(sdf.parse(campos[6].trim()));
                     }
                 } catch (Exception ex) {
+                    usuario.setFechaNacimiento(null);
                 }
 
                 usuario.setSexo(campos[7]);
@@ -441,7 +533,7 @@ public class UsuarioController {
                 }
                 usuario.setRol(rol);
 
-                // Dirección (una por registro)
+                // Dirección
                 Direccion direccion = new Direccion();
                 direccion.setCalle(campos[13]);
                 direccion.setNumeroExterior(campos[14]);
@@ -461,58 +553,111 @@ public class UsuarioController {
 
                 usuarios.add(usuario);
             }
+
             return usuarios;
         } catch (Exception ex) {
-            System.out.println("error");
+            System.out.println("Error al procesar archivo: " + ex.getMessage());
             return null;
         }
     }
 
-    private List<Usuario> ProcesarExcel(MultipartFile file) {
-
+    private List<Usuario> ProcesarExcel(File file) {
         List<Usuario> usuarios = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setLenient(false);
 
-        try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
+        try (FileInputStream fis = new FileInputStream(file); XSSFWorkbook workbook = new XSSFWorkbook(fis)) {
 
             Sheet sheet = workbook.getSheetAt(0);
+            DataFormatter fmt = new DataFormatter(); 
 
+            boolean primeraFila = true;
             for (Row row : sheet) {
+                if (row == null) {
+                    continue;
+                }
+                if (primeraFila) {
+                    primeraFila = false;
+                    continue;
+                } // salta encabezados
 
                 Usuario usuario = new Usuario();
-                usuario.setNombre(row.getCell(0) != null ? row.getCell(0).toString() : "");
-                usuario.setApellidopaterno(row.getCell(1) != null ? row.getCell(1).toString() : "");
-                usuario.setApellidomaterno(row.getCell(2)!=null ? row.getCell(2).toString(): "");
-                usuario.setUsername(row.getCell(3) != null ? row.getCell(3).toString(): "");
-                usuario.setEmail(row.getCell(4) != null ? row.getCell(4).toString():"");
-                usuario.setPassword(row.getCell(5)!=null ? row.getCell(5).toString():"");
-                if (row.getCell(6) != null) {
-                    if (row.getCell(6).getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(row.getCell(6))) {
-                        usuario.setFechaNacimiento(row.getCell(6).getDateCellValue());
-                    } else {
-                        usuario.setFechaNacimiento(sdf.parse(row.getCell(6).toString()));
+                usuario.setNombre(fmt.formatCellValue(row.getCell(0)));
+                usuario.setApellidopaterno(fmt.formatCellValue(row.getCell(1)));
+                usuario.setApellidomaterno(fmt.formatCellValue(row.getCell(2)));
+                usuario.setUsername(fmt.formatCellValue(row.getCell(3)));
+                usuario.setEmail(fmt.formatCellValue(row.getCell(4)));
+                usuario.setPassword(fmt.formatCellValue(row.getCell(5)));
+
+                // Fecha de nacimiento (col 6)
+                Cell cFecha = row.getCell(6);
+                if (cFecha != null) {
+                    try {
+                        if (cFecha.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cFecha)) {
+                            usuario.setFechaNacimiento(cFecha.getDateCellValue());
+                        } else {
+                            String v = fmt.formatCellValue(cFecha).trim();
+                            if (!v.isEmpty()) {
+                                usuario.setFechaNacimiento(sdf.parse(v));
+                            }
+                        }
+                    } catch (Exception ignore) {
+                        usuario.setFechaNacimiento(null);
                     }
                 }
-                usuario.setSexo(row.getCell(7)!=null ? row.getCell(7).toString():"");
-                usuario.setTelefono(row.getCell(8) !=null ? row.getCell(8).toString():"");
-                usuario.setCelular(row.getCell(9) !=null ? row.getCell(9).toString():"");
-                usuario.setCurp(row.getCell(10) !=null ? row.getCell(10).toString():"");
-                usuario.setTiposangre(row.getCell(11) !=null ? row.getCell(11).toString():"");
 
-                usuario.Rol = new Rol();
-                usuario.Rol.setIdRol(row.getCell(12) != null ? (int) row.getCell(12).getNumericCellValue() : 0);
+                usuario.setSexo(fmt.formatCellValue(row.getCell(7)));
+                usuario.setTelefono(fmt.formatCellValue(row.getCell(8)));
+                usuario.setCelular(fmt.formatCellValue(row.getCell(9)));
+                usuario.setCurp(fmt.formatCellValue(row.getCell(10)));
+                usuario.setTiposangre(fmt.formatCellValue(row.getCell(11)));
 
-                
-                
-                
+                // Rol (col 12)
+                Rol rol = new Rol();
+                try {
+                    Cell cRol = row.getCell(12);
+                    int idRol = 0;
+                    if (cRol != null) {
+                        if (cRol.getCellType() == CellType.NUMERIC) {
+                            idRol = (int) cRol.getNumericCellValue();
+                        } else {
+                            String s = fmt.formatCellValue(cRol).trim();
+                            if (!s.isEmpty()) {
+                                idRol = Integer.parseInt(s);
+                            }
+                        }
+                    }
+                    rol.setIdRol(idRol);
+                } catch (Exception ignore) {
+                    rol.setIdRol(0);
+                }
+                usuario.setRol(rol);
+
+                // Dirección (13..16)
                 Direccion direccion = new Direccion();
-                direccion.setCalle(row.getCell(13) !=null ? row.getCell(13).toString():"");
-                direccion.setNumeroInterior(row.getCell(14) !=null ? row.getCell(14).toString():"");
-                direccion.setNumeroExterior(row.getCell(15) !=null ? row.toString():"");
+                direccion.setCalle(fmt.formatCellValue(row.getCell(13)));
+                direccion.setNumeroInterior(fmt.formatCellValue(row.getCell(14)));
+                direccion.setNumeroExterior(fmt.formatCellValue(row.getCell(15))); // <-- corregido
 
                 Colonia colonia = new Colonia();
-                direccion.Colonia = colonia;
-                direccion.Colonia.setIdColonia(row.getCell(16) != null ? (int) row.getCell(16).getNumericCellValue() : 0);
+                try {
+                    Cell cCol = row.getCell(16);
+                    int idCol = 0;
+                    if (cCol != null) {
+                        if (cCol.getCellType() == CellType.NUMERIC) {
+                            idCol = (int) cCol.getNumericCellValue();
+                        } else {
+                            String s = fmt.formatCellValue(cCol).trim();
+                            if (!s.isEmpty()) {
+                                idCol = Integer.parseInt(s);
+                            }
+                        }
+                    }
+                    colonia.setIdColonia(idCol);
+                } catch (Exception ignore) {
+                    colonia.setIdColonia(0);
+                }
+                direccion.setColonia(colonia); // <-- usar setter, no campo público
 
                 List<Direccion> direcciones = new ArrayList<>();
                 direcciones.add(direccion);
@@ -524,10 +669,8 @@ public class UsuarioController {
             return usuarios;
 
         } catch (Exception ex) {
-
-            System.out.println("error");
+            System.out.println("error: " + ex.getMessage());
             return null;
-
         }
     }
 

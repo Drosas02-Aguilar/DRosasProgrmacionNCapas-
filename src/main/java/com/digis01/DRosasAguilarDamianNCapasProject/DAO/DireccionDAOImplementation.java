@@ -80,7 +80,7 @@ public class DireccionDAOImplementation implements IDireccionDAO {
     public Result delete(int idDireccion) {
         Result result = new Result();
         try {
-            jdbcTemplate.execute("CALL DireccionDeleteById(?)",
+            jdbcTemplate.execute("CALL DIRECCIONDELETE(?)",
                 (CallableStatementCallback<Boolean>) callablestatement -> {
                     callablestatement.setInt(1, idDireccion);
                     callablestatement.execute();

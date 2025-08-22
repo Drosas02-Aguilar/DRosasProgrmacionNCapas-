@@ -92,7 +92,7 @@
           <div th:if="${listaErrores.isEmpty()}">
             <h4>Archivo correcto: </h4>
             <!-- Ruta corregida a USUARIO -->
-            <a th:href="@{/usuario/cargamasiva/procesar}" class="btn btn-success">Proesar archivo</a>
+            <a th:href="@{/usuario/cargamasiva/procesar}" class="btn btn-success">Procesar archivo</a>
           </div>
           <div th:unless="${listaErrores.isEmpty()}">
             <h4>Archivo incorrecto: </h4>
