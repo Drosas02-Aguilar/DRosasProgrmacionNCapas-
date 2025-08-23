@@ -68,6 +68,7 @@ import org.springframework.ui.Model;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -96,9 +97,29 @@ public class UsuarioController {
     // ========================= LISTADO =========================
     @GetMapping
     public String Index(Model model) {
-        Result result = usuarioDAOImplementation.GetAll();
+        // Constructor de 4 parámetros
+        Result result = usuarioDAOImplementation.GetAll(
+                new Usuario("", "", "", new Rol()));
+
+        // Solo clave-valor en addAttribute
         model.addAttribute("usuarios", result.correct ? result.objects : null);
+
         return "UsuarioIndex";
+    }
+
+    //=========== SEARCH BUSCADO INNDEX =====================================
+    @PostMapping
+
+    public String Index(Model model, @ModelAttribute("usuariobusqueda") Usuario usuariobusqueda) {
+
+        Result result = usuarioDAOImplementation.GetAll(usuariobusqueda);
+
+        model.addAttribute("alumnoBusqueda", usuariobusqueda);
+
+        model.addAttribute("alumnos", result.objects);
+
+        return "UsuarioIndex";
+
     }
 
     // ========================= NUEVO USUARIO (FORM COMPLETO) =========================
@@ -491,7 +512,7 @@ public class UsuarioController {
     }
 
     private List<Usuario> ProcesarTXT(File file) {
-        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
 
             String linea;
             List<Usuario> usuarios = new ArrayList<>();
@@ -569,7 +590,7 @@ public class UsuarioController {
         try (FileInputStream fis = new FileInputStream(file); XSSFWorkbook workbook = new XSSFWorkbook(fis)) {
 
             Sheet sheet = workbook.getSheetAt(0);
-            DataFormatter fmt = new DataFormatter(); 
+            DataFormatter fmt = new DataFormatter();
 
             boolean primeraFila = true;
             for (Row row : sheet) {
@@ -679,8 +700,7 @@ public class UsuarioController {
         List<ErrorCM> errores = new ArrayList<>();
         if (usuarios == null) {
             return errores;
-      
-        
+
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");

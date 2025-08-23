@@ -511,6 +511,32 @@ function SangreVal(el){const v=(el.value||'').toUpperCase();if(v==='')return set
 function CalleVal(el){const v=(el.value||'').trim();if(v.length<3)return setInvalid(el,'Mínimo 3 caracteres.');if(v.length>80)return setInvalid(el,'Máximo 80 caracteres.');setValid(el);}
 function PuertaVal(el){const v=(el.value||'').trim();if(v==='')return setValid(el);if(!/^[A-Za-z0-9\-\/]{1,10}$/.test(v))return setInvalid(el,'Máx 10, solo A-Z,0-9,-,/');setValid(el);}
 function IdPosVal(el){const v=el.value;if(!v||v==='0')return setInvalid(el,'Selecciona una opción.');setValid(el);}
+function EmailVal(el) {
+    const email = el.value.trim();
+    const emailRegex = /^(?!.*\.\.)[a-zA-Z0-9](\.?[a-zA-Z0-9_-])*@[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+$/;
+
+    // Limpia mensajes anteriores
+    const errorMsg = document.getElementById("emailError");
+    if (errorMsg) errorMsg.textContent = "";
+
+    if (!emailRegex.test(email)) {
+        if (errorMsg) {
+            errorMsg.textContent = "❌ Email inválido. Por favor verifica el formato.";
+        } else {
+            const span = document.createElement("span");
+            span.id = "emailError";
+            span.style.color = "red";
+            span.textContent = "❌ Email inválido. Por favor verifica el formato.";
+            el.parentNode.appendChild(span);
+        }
+        el.classList.add("is-invalid");
+        return false;
+    }
+
+    el.classList.remove("is-invalid");
+    el.classList.add("is-valid");
+    return true;
+}
 
 // Intercepta envíos con campos inválidos
 document.addEventListener('submit',function(e){

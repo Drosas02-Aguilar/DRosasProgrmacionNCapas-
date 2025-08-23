@@ -54,7 +54,6 @@ public class Usuario {
         this.Tiposangre = tiposangre;
         this.FechaNacimiento = fechaNacimiento;
         this.direcciones = new ArrayList<>();
-        // this.Rol = new Rol(idrol, null); // si lo necesitas aquí
     }
 
     public Rol getRol() { return Rol; }
@@ -108,6 +107,13 @@ public class Usuario {
 
     public void setImagen(String Imagen) {
         this.Imagen = Imagen;
+    }
+
+    public Usuario(String Nombre, String Apellidopaterno, String Apellidomaterno, Rol Rol) {
+        this.Nombre = Nombre;
+        this.Apellidopaterno = Apellidopaterno;
+        this.Apellidomaterno = Apellidomaterno;
+        this.Rol = Rol;
     }
 
 

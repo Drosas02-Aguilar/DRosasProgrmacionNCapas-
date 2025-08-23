@@ -4,7 +4,7 @@ import com.digis01.DRosasAguilarDamianNCapasProject.ML.Result;
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario;
 public interface IUsuarioDAO {
     
-Result GetAll();
+Result GetAll(Usuario usuario);
 Result DireccionesByIdUsuario(int idUsuario);
 Result Add(Usuario usuario); 
 Result update(Usuario usuario);

@@ -14,6 +14,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @Repository
 public class UsuarioDAOImplementation implements IUsuarioDAO {
@@ -23,64 +25,69 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public Result GetAll() {
-        Result result = new Result();
+public Result GetAll(Usuario usuario) {
+    Result result = new Result();
 
-        try {
-            jdbcTemplate.execute("{CALL UsuarioDireccionGetAll(?)}", (CallableStatementCallback<Integer>) callableStatement -> {
-                callableStatement.registerOutParameter(1, java.sql.Types.REF_CURSOR);
+    try {
+        jdbcTemplate.execute("{CALL UsuarioDireccionGetAll(?,?,?,?,?)}",
+            (CallableStatementCallback<Integer>) callableStatement -> {
+
+                // IN params
+                callableStatement.setString(1, usuario.getNombre());
+                callableStatement.setString(2, usuario.getApellidopaterno());
+                callableStatement.setString(3, usuario.getApellidomaterno());
+                int idRol = (usuario.getRol() != null) ? usuario.getRol().getIdRol() : 0;
+                callableStatement.setInt(4, idRol);
+
+                // OUT cursor en el 5º parámetro
+                callableStatement.registerOutParameter(5, java.sql.Types.REF_CURSOR);
+                // Si tu driver no soporta REF_CURSOR, usa: oracle.jdbc.OracleTypes.CURSOR
+
                 callableStatement.execute();
-                ResultSet resultSet = (ResultSet) callableStatement.getObject(1);
+                ResultSet resultSet = (ResultSet) callableStatement.getObject(5);
 
+                // Agrupar por IdUsuario para no duplicar y poder acumular direcciones
+                Map<Integer, Usuario> mapa = new HashMap<>();
                 result.objects = new ArrayList<>();
 
                 while (resultSet.next()) {
                     int idUsuario = resultSet.getInt("IdUsuario");
+                    Usuario usuarioBD = mapa.get(idUsuario);
 
-                    // Busca si ya existe este usuario en el ArrayList
-                    Usuario usuario = null;
-                    for (Object obj : result.objects) {
-                        Usuario u = (Usuario) obj;
-                        if (u.getIdUsuario() == idUsuario) {
-                            usuario = u;
-                            break;
-                        }
-                    }
-
-                    // Si no existe, lo creamos y lo agregamos
-                    if (usuario == null) {
-                        usuario = new Usuario();
-                        usuario.setIdUsuario(idUsuario);
-                        usuario.setNombre(resultSet.getString("NombreUsuario"));
-                        usuario.setApellidopaterno(resultSet.getString("ApellidoPaterno"));
-                        usuario.setApellidomaterno(resultSet.getString("ApellidoMaterno"));
-                        usuario.setUsername(resultSet.getString("UserName"));
-                        usuario.setEmail(resultSet.getString("Email"));
-                        usuario.setPassword(resultSet.getString("Password"));
-                        usuario.setFechaNacimiento(resultSet.getDate("FechaNacimiento"));
-                        usuario.setSexo(resultSet.getString("Sexo"));
-                        usuario.setTelefono(resultSet.getString("Telefono"));
-                        usuario.setCelular(resultSet.getString("Celular"));
-                        usuario.setCurp(resultSet.getString("Curp"));
-                        usuario.setTiposangre(resultSet.getString("TipoSangre"));
+                    // Si no existe aún en el mapa, créalo y mapéalo
+                    if (usuarioBD == null) {
+                        usuarioBD = new Usuario();
+                        usuarioBD.setIdUsuario(idUsuario);
+                        usuarioBD.setNombre(resultSet.getString("NombreUsuario"));
+                        usuarioBD.setApellidopaterno(resultSet.getString("ApellidoPaterno"));
+                        usuarioBD.setApellidomaterno(resultSet.getString("ApellidoMaterno"));
+                        usuarioBD.setUsername(resultSet.getString("UserName"));
+                        usuarioBD.setEmail(resultSet.getString("Email"));
+                        usuarioBD.setPassword(resultSet.getString("Password"));
+                        usuarioBD.setFechaNacimiento(resultSet.getDate("FechaNacimiento"));
+                        usuarioBD.setSexo(resultSet.getString("Sexo"));
+                        usuarioBD.setTelefono(resultSet.getString("Telefono"));
+                        usuarioBD.setCelular(resultSet.getString("Celular"));
+                        usuarioBD.setCurp(resultSet.getString("Curp"));
+                        usuarioBD.setTiposangre(resultSet.getString("TipoSangre"));
+                        usuarioBD.setImagen(resultSet.getString("Imagen"));
 
                         // Rol
-                        int idRol = resultSet.getInt("IdRol");
-                        if (!resultSet.wasNull() && idRol != 0) {
+                        int idRolOut = resultSet.getInt("IdRol");
+                        if (!resultSet.wasNull() && idRolOut != 0) {
                             Rol rol = new Rol();
-                            rol.setIdRol(idRol);
+                            rol.setIdRol(idRolOut);
                             rol.setNombre(resultSet.getString("NombreRol"));
-                            usuario.Rol = rol;
+                            usuarioBD.setRol(rol);
                         } else {
-                            usuario.Rol = null;
+                            usuarioBD.setRol(null);
                         }
-                        usuario.setImagen(resultSet.getString("Imagen"));
 
-                        usuario.direcciones = new ArrayList<>();
-                        result.objects.add(usuario);
+                        usuarioBD.setDirecciones(new ArrayList<>());
+                        mapa.put(idUsuario, usuarioBD);
                     }
 
-                    // Direcciones (puede ser null)
+                    // Direcciones (opcionales)
                     int idDireccion = resultSet.getInt("IdDireccion");
                     if (!resultSet.wasNull() && idDireccion != 0) {
                         Direccion direccion = new Direccion();
@@ -89,8 +96,7 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
                         direccion.setNumeroInterior(resultSet.getString("NumeroInterior"));
                         direccion.setNumeroExterior(resultSet.getString("NumeroExterior"));
 
-                        // Colonia
-                        direccion.Colonia = null; // default
+                        // Colonia (opcional)
                         int idColonia = resultSet.getInt("IdColonia");
                         if (!resultSet.wasNull() && idColonia != 0) {
                             Colonia colonia = new Colonia();
@@ -98,24 +104,21 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
                             colonia.setNombre(resultSet.getString("NombreColonia"));
                             colonia.setCodigoPostal(resultSet.getString("CodigoPostal"));
 
-                            // Municipio
-                            colonia.Municipio = null;
+                            // Municipio (opcional)
                             int idMunicipio = resultSet.getInt("IdMunicipio");
                             if (!resultSet.wasNull() && idMunicipio != 0) {
                                 Municipio municipio = new Municipio();
                                 municipio.setIdMunicipio(idMunicipio);
                                 municipio.setNombre(resultSet.getString("NombreMunicipio"));
 
-                                // Estado
-                                municipio.Estado = null;
+                                // Estado (opcional)
                                 int idEstado = resultSet.getInt("IdEstado");
                                 if (!resultSet.wasNull() && idEstado != 0) {
                                     Estado estado = new Estado();
                                     estado.setIdEstado(idEstado);
                                     estado.setNombre(resultSet.getString("NombreEstado"));
 
-                                    // País
-                                    estado.Pais = null;
+                                    // País (opcional)
                                     int idPais = resultSet.getInt("IdPais");
                                     if (!resultSet.wasNull() && idPais != 0) {
                                         Pais pais = new Pais();
@@ -129,21 +132,26 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
                             }
                             direccion.Colonia = colonia;
                         }
-                        usuario.direcciones.add(direccion);
+
+                        // Agregar dirección al usuario del mapa
+                        mapa.get(idUsuario).getDirecciones().add(direccion);
                     }
                 }
 
+                // Pasar valores finales al result
+                result.objects = new ArrayList<>(mapa.values());
                 result.correct = true;
                 return 1;
             });
 
-        } catch (Exception ex) {
-            result.correct = false;
-            result.errorMessage = ex.getLocalizedMessage();
-            result.ex = ex;
-        }
-        return result;
+    } catch (Exception ex) {
+        result.correct = false;
+        result.errorMessage = ex.getLocalizedMessage();
+        result.ex = ex;
     }
+    return result;
+}
+
 
     @Override
     public Result DireccionesByIdUsuario(int idUsuario) {
