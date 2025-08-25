@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-   <html xmlns:th="http://www.thymeleaf.org"
+<html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 
     <body layout:fragment="body">
-        
+
         <div class="container">
 
             <div class="container py-4">
@@ -20,30 +20,31 @@
                         </a>
                     </div>
                 </div>
-                
+
                 <!-- Filtros -->
-<form th:action="@{/usuario/search}" method="get" class="row g-2 mb-3">
-  <div class="col-sm-3">
-    <input class="form-control" name="nombre" placeholder="Nombre" th:value="${fNombre}">
-  </div>
-  <div class="col-sm-3">
-    <input class="form-control" name="apellidopaterno" placeholder="Apellido paterno" th:value="${fApellidoPaterno}">
-  </div>
-  <div class="col-sm-3">
-    <input class="form-control" name="apellidomaterno" placeholder="Apellido materno" th:value="${fApellidoMaterno}">
-  </div>
-  <div class="col-sm-2">
-    <select class="form-select" name="idrol" th:value="${fIdRol}">
-      <option value="">-- Rol (todos) --</option>
-      <option th:each="r : ${roles}" th:value="${r.idRol}" th:text="${r.nombre}"></option>
-    </select>
-  </div>
-  <div class="col-sm-1">
-    <button class="btn btn-primary w-100" type="submit">
-      <i class="bi bi-search"></i>
-    </button>
-  </div>
-</form>
+                <form method="post" th:action="@{/usuario}" th:object="${usuariobusqueda}" class="row g-2 mb-3">
+                    <div class="col-sm-3">
+                        <input class="form-control" placeholder="Nombre" th:field="*{Nombre}">
+                    </div>
+                    <div class="col-sm-3">
+                        <input class="form-control" placeholder="Apellido paterno" th:field="*{Apellidopaterno}">
+                    </div>
+                    <div class="col-sm-3">
+                        <input class="form-control" placeholder="Apellido materno" th:field="*{Apellidomaterno}">
+                    </div>
+                    <div class="col-sm-2">
+                        <select class="form-select" th:field="*{rol.idRol}">
+                            <option th:value="0">-- Rol (todos) --</option>
+                            <option th:each="r : ${roles}" th:value="${r.idRol}" th:text="${r.nombre}"></option>
+                        </select>
+                    </div>
+                    <div class="col-sm-1">
+                        <button class="btn btn-primary w-100" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+
 
 
                 <!-- Mensaje flash (opcional) -->

@@ -95,32 +95,45 @@ public class UsuarioController {
     private DireccionDAOImplementation direccionDAOImplementation;
 
     // ========================= LISTADO =========================
-    @GetMapping
-    public String Index(Model model) {
-        // Constructor de 4 parámetros
-        Result result = usuarioDAOImplementation.GetAll(
-                new Usuario("", "", "", new Rol()));
+  @GetMapping
+public String Index(Model model) {
+    Result result = usuarioDAOImplementation.GetAll(
+            new Usuario("", "", "", new Rol()));
 
-        // Solo clave-valor en addAttribute
-        model.addAttribute("usuarios", result.correct ? result.objects : null);
+    model.addAttribute("usuarios", result.correct ? result.objects : null);
 
-        return "UsuarioIndex";
+    Usuario filtro = new Usuario("", "", "", new Rol());
+    filtro.getRol().setIdRol(0);                 
+    model.addAttribute("usuariobusqueda", filtro);
+
+    Result rolesRs = rolDAOImplementation.GetAllRol();
+    model.addAttribute("roles", rolesRs.correct ? rolesRs.objects : Collections.emptyList());
+
+    return "UsuarioIndex";
     }
 
     //=========== SEARCH BUSCADO INNDEX =====================================
-    @PostMapping
+@PostMapping
+public String Index(Model model, @ModelAttribute("usuariobusqueda") Usuario usuariobusqueda) {
 
-    public String Index(Model model, @ModelAttribute("usuariobusqueda") Usuario usuariobusqueda) {
-
-        Result result = usuarioDAOImplementation.GetAll(usuariobusqueda);
-
-        model.addAttribute("alumnoBusqueda", usuariobusqueda);
-
-        model.addAttribute("alumnos", result.objects);
-
-        return "UsuarioIndex";
-
+    if (usuariobusqueda.getRol() == null) {
+        usuariobusqueda.setRol(new Rol());
     }
+
+  if (usuariobusqueda.getRol().getIdRol() == 0) {
+        usuariobusqueda.getRol().setIdRol(0);
+    }
+    Result result = usuarioDAOImplementation.GetAll(usuariobusqueda);
+
+    Result rolesRs = rolDAOImplementation.GetAllRol();
+
+    // --- Modelo para la vista ---
+    model.addAttribute("usuariobusqueda", usuariobusqueda);
+    model.addAttribute("usuarios", result.correct ? result.objects : null);
+    model.addAttribute("roles", rolesRs.correct ? rolesRs.objects : Collections.emptyList());
+
+    return "UsuarioIndex";
+}
 
     // ========================= NUEVO USUARIO (FORM COMPLETO) =========================
     @GetMapping("add")
