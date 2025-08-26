@@ -24,37 +24,31 @@ public class UsuarioDAOImplementation implements IUsuarioDAO {
 
     private JdbcTemplate jdbcTemplate;
 
-    @Override
-public Result GetAll(Usuario usuario) {
+   @Override
+   public Result GetAll(Usuario usuario) {
     Result result = new Result();
-
+ 
     try {
         jdbcTemplate.execute("{CALL UsuarioDireccionGetAll(?,?,?,?,?)}",
             (CallableStatementCallback<Integer>) callableStatement -> {
-
-                // IN params
+ 
                 callableStatement.setString(1, usuario.getNombre());
                 callableStatement.setString(2, usuario.getApellidopaterno());
                 callableStatement.setString(3, usuario.getApellidomaterno());
                 int idRol = (usuario.getRol() != null) ? usuario.getRol().getIdRol() : 0;
-                callableStatement.setInt(4, idRol);
-
-                // OUT cursor en el 5º parámetro
+                callableStatement.setInt(4, idRol); 
                 callableStatement.registerOutParameter(5, java.sql.Types.REF_CURSOR);
-                // Si tu driver no soporta REF_CURSOR, usa: oracle.jdbc.OracleTypes.CURSOR
-
+ 
                 callableStatement.execute();
                 ResultSet resultSet = (ResultSet) callableStatement.getObject(5);
-
-                // Agrupar por IdUsuario para no duplicar y poder acumular direcciones
+ 
                 Map<Integer, Usuario> mapa = new HashMap<>();
                 result.objects = new ArrayList<>();
-
+ 
                 while (resultSet.next()) {
                     int idUsuario = resultSet.getInt("IdUsuario");
                     Usuario usuarioBD = mapa.get(idUsuario);
-
-                    // Si no existe aún en el mapa, créalo y mapéalo
+ 
                     if (usuarioBD == null) {
                         usuarioBD = new Usuario();
                         usuarioBD.setIdUsuario(idUsuario);
@@ -71,7 +65,7 @@ public Result GetAll(Usuario usuario) {
                         usuarioBD.setCurp(resultSet.getString("Curp"));
                         usuarioBD.setTiposangre(resultSet.getString("TipoSangre"));
                         usuarioBD.setImagen(resultSet.getString("Imagen"));
-
+ 
                         // Rol
                         int idRolOut = resultSet.getInt("IdRol");
                         if (!resultSet.wasNull() && idRolOut != 0) {
@@ -82,12 +76,11 @@ public Result GetAll(Usuario usuario) {
                         } else {
                             usuarioBD.setRol(null);
                         }
-
+ 
                         usuarioBD.setDirecciones(new ArrayList<>());
                         mapa.put(idUsuario, usuarioBD);
                     }
-
-                    // Direcciones (opcionales)
+ 
                     int idDireccion = resultSet.getInt("IdDireccion");
                     if (!resultSet.wasNull() && idDireccion != 0) {
                         Direccion direccion = new Direccion();
@@ -95,30 +88,30 @@ public Result GetAll(Usuario usuario) {
                         direccion.setCalle(resultSet.getString("Calle"));
                         direccion.setNumeroInterior(resultSet.getString("NumeroInterior"));
                         direccion.setNumeroExterior(resultSet.getString("NumeroExterior"));
-
-                        // Colonia (opcional)
+ 
+                        // Colonia 
                         int idColonia = resultSet.getInt("IdColonia");
                         if (!resultSet.wasNull() && idColonia != 0) {
                             Colonia colonia = new Colonia();
                             colonia.setIdColonia(idColonia);
                             colonia.setNombre(resultSet.getString("NombreColonia"));
                             colonia.setCodigoPostal(resultSet.getString("CodigoPostal"));
-
-                            // Municipio (opcional)
+ 
+                            // Municipio 
                             int idMunicipio = resultSet.getInt("IdMunicipio");
                             if (!resultSet.wasNull() && idMunicipio != 0) {
                                 Municipio municipio = new Municipio();
                                 municipio.setIdMunicipio(idMunicipio);
                                 municipio.setNombre(resultSet.getString("NombreMunicipio"));
-
-                                // Estado (opcional)
+ 
+                                // Estado 
                                 int idEstado = resultSet.getInt("IdEstado");
                                 if (!resultSet.wasNull() && idEstado != 0) {
                                     Estado estado = new Estado();
                                     estado.setIdEstado(idEstado);
                                     estado.setNombre(resultSet.getString("NombreEstado"));
-
-                                    // País (opcional)
+ 
+                                    // País 
                                     int idPais = resultSet.getInt("IdPais");
                                     if (!resultSet.wasNull() && idPais != 0) {
                                         Pais pais = new Pais();
@@ -132,18 +125,16 @@ public Result GetAll(Usuario usuario) {
                             }
                             direccion.Colonia = colonia;
                         }
-
-                        // Agregar dirección al usuario del mapa
+ 
                         mapa.get(idUsuario).getDirecciones().add(direccion);
                     }
                 }
-
-                // Pasar valores finales al result
+ 
                 result.objects = new ArrayList<>(mapa.values());
                 result.correct = true;
                 return 1;
             });
-
+ 
     } catch (Exception ex) {
         result.correct = false;
         result.errorMessage = ex.getLocalizedMessage();
@@ -151,6 +142,7 @@ public Result GetAll(Usuario usuario) {
     }
     return result;
 }
+
 
 
     @Override

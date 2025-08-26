@@ -1,0 +1,60 @@
+package com.digis01.DRosasAguilarDamianNCapasProject.JPA;
+
+import com.digis01.DRosasAguilarDamianNCapasProject.ML.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+
+@Entity
+public class Municipio {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "IdMunicipio")
+    private int IdMunicipio;
+
+    @Column(name = "Nombre", nullable = false)
+    private String Nombre;
+
+     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "IdEstado", nullable = false)
+    public Estado Estado;
+
+    public Municipio() {
+    }
+
+    public Municipio(int IdMunicipio, String Nombre) {
+        this.IdMunicipio = IdMunicipio;
+        this.Nombre = Nombre;
+    }
+
+    public Estado getEstado() {
+        return Estado;
+    }
+
+    public void setEstado(Estado Estado) {
+        this.Estado = Estado;
+    }
+
+    public int getIdMunicipio() {
+        return IdMunicipio;
+    }
+
+    public void setIdMunicipio(int IdMunicipio) {
+        this.IdMunicipio = IdMunicipio;
+    }
+
+    public String getNombre() {
+        return Nombre;
+    }
+
+    public void setNombre(String Nombre) {
+        this.Nombre = Nombre;
+    }
+
+}

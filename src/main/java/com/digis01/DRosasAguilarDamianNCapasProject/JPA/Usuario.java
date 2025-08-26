@@ -1,5 +1,19 @@
-package com.digis01.DRosasAguilarDamianNCapasProject.ML;
+package com.digis01.DRosasAguilarDamianNCapasProject.JPA;
 
+import com.digis01.DRosasAguilarDamianNCapasProject.ML.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -9,26 +23,62 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 
+@Entity
 public class Usuario {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "IdUsuario")
     private int IdUsuario;
+    
+    @Column(name = "Username", nullable  = false, unique = true)
     private String Username;
+    
+    @Column(name = "Nombre", nullable = false)
     private String Nombre;
+    
+    @Column(name = "Apellidopaterno", nullable = false)
     private String Apellidopaterno;
+    
+    @Column(name = "Apellidomaterno", nullable = false)
     private String Apellidomaterno;
+    
+    @Column (name = "Email", nullable = false, unique = true)
     private String Email;
-
+    
+    @Column (name = "Password", nullable = false)
     private String Password;
+    
+    @Column (name = "Telefono", nullable = false)
     private String Telefono;
+    
+    @Column (name = "Curp", length = 50, unique = true)
     private String Curp;
-    private String Direccion;
+    //private String Direccion;
+    
+    @Column(name = "Celular")
     private String Celular;
+    
+    @Column(name = "Sexo", nullable = false)
     private String Sexo;
+    
+    @Column(name = "TipoSangre")
     private String Tiposangre;
+    
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @Temporal(TemporalType.DATE)
+    @Column(name = "FechaNacimiento")
     private Date FechaNacimiento;
+    
+    @ManyToOne()
+    @JoinColumn(name = "IdRol", nullable = false)
     public Rol Rol;
+    
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     public List<Direccion> direcciones;
+   
+    @Lob 
+    @Column(name = "Imagen")
     private String Imagen;
     
     
@@ -48,7 +98,7 @@ public class Usuario {
         this.Password = password;
         this.Telefono = telefono;
         this.Curp = curp; // corregido
-        this.Direccion = direccion;
+      //  this.Direccion = direccion;
         this.Celular = celular;
         this.Sexo = sexo;
         this.Tiposangre = tiposangre;

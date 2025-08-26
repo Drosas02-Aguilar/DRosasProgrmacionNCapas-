@@ -94,7 +94,7 @@ public class UsuarioController {
     @Autowired
     private DireccionDAOImplementation direccionDAOImplementation;
 
-    // ========================= LISTADO =========================
+   // ========================= LISTADO =========================
   @GetMapping
 public String Index(Model model) {
     Result result = usuarioDAOImplementation.GetAll(
