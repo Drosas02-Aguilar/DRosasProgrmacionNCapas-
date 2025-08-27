@@ -7,6 +7,7 @@ import com.digis01.DRosasAguilarDamianNCapasProject.DAO.PaisDAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.RolDAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.UsuarioDAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.DireccionDAOImplementation;
+import com.digis01.DRosasAguilarDamianNCapasProject.DAO.UsuarioJPADAOImplementation;
 import java.util.Base64;
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Colonia;
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Direccion;
@@ -83,6 +84,10 @@ public class UsuarioController {
     private RolDAOImplementation rolDAOImplementation;
     @Autowired
     private UsuarioDAOImplementation usuarioDAOImplementation;
+    
+    @Autowired
+    private UsuarioJPADAOImplementation usuarioJPADAOImplementation;
+    
     @Autowired
     private PaisDAOImplementation paisDAOImplementation;
     @Autowired
@@ -94,46 +99,46 @@ public class UsuarioController {
     @Autowired
     private DireccionDAOImplementation direccionDAOImplementation;
 
-   // ========================= LISTADO =========================
-  @GetMapping
-public String Index(Model model) {
-    Result result = usuarioDAOImplementation.GetAll(
-            new Usuario("", "", "", new Rol()));
+    // ========================= LISTADO =========================
+    @GetMapping
+    public String Index(Model model) {
+//    Result result = usuarioDAOImplementation.GetAll(new Usuario("", "", "", new Rol()));
 
-    model.addAttribute("usuarios", result.correct ? result.objects : null);
+        Result result = usuarioJPADAOImplementation.GetAll();
 
-    Usuario filtro = new Usuario("", "", "", new Rol());
-    filtro.getRol().setIdRol(0);                 
-    model.addAttribute("usuariobusqueda", filtro);
+   model.addAttribute("usuarios", result.correct ? result.objects : null);
+        Usuario filtro = new Usuario("", "", "", new Rol());
+        filtro.getRol().setIdRol(0);
+        model.addAttribute("usuariobusqueda", filtro);
 
-    Result rolesRs = rolDAOImplementation.GetAllRol();
-    model.addAttribute("roles", rolesRs.correct ? rolesRs.objects : Collections.emptyList());
+        Result rolesRs = rolDAOImplementation.GetAllRol();
+        model.addAttribute("roles", rolesRs.correct ? rolesRs.objects : Collections.emptyList());
 
-    return "UsuarioIndex";
+        return "UsuarioIndex";
     }
 
     //=========== SEARCH BUSCADO INNDEX =====================================
-@PostMapping
-public String Index(Model model, @ModelAttribute("usuariobusqueda") Usuario usuariobusqueda) {
+    @PostMapping
+    public String Index(Model model, @ModelAttribute("usuariobusqueda") Usuario usuariobusqueda) {
 
-    if (usuariobusqueda.getRol() == null) {
-        usuariobusqueda.setRol(new Rol());
+        if (usuariobusqueda.getRol() == null) {
+            usuariobusqueda.setRol(new Rol());
+        }
+
+        if (usuariobusqueda.getRol().getIdRol() == 0) {
+            usuariobusqueda.getRol().setIdRol(0);
+        }
+        Result result = usuarioDAOImplementation.GetAll(usuariobusqueda);
+
+        Result rolesRs = rolDAOImplementation.GetAllRol();
+
+        // --- Modelo para la vista ---
+        model.addAttribute("usuariobusqueda", usuariobusqueda);
+        model.addAttribute("usuarios", result.correct ? result.objects : null);
+        model.addAttribute("roles", rolesRs.correct ? rolesRs.objects : Collections.emptyList());
+
+        return "UsuarioIndex";
     }
-
-  if (usuariobusqueda.getRol().getIdRol() == 0) {
-        usuariobusqueda.getRol().setIdRol(0);
-    }
-    Result result = usuarioDAOImplementation.GetAll(usuariobusqueda);
-
-    Result rolesRs = rolDAOImplementation.GetAllRol();
-
-    // --- Modelo para la vista ---
-    model.addAttribute("usuariobusqueda", usuariobusqueda);
-    model.addAttribute("usuarios", result.correct ? result.objects : null);
-    model.addAttribute("roles", rolesRs.correct ? rolesRs.objects : Collections.emptyList());
-
-    return "UsuarioIndex";
-}
 
     // ========================= NUEVO USUARIO (FORM COMPLETO) =========================
     @GetMapping("add")
@@ -142,20 +147,6 @@ public String Index(Model model, @ModelAttribute("usuariobusqueda") Usuario usua
         Result paisesRs = paisDAOImplementation.GetAllPais();
 
         Usuario usuario = new Usuario();
-//        usuario.setDirecciones(new ArrayList<>());
-//
-//        Direccion direccion = new Direccion();
-//        Colonia colonia = new Colonia();
-//        Municipio municipio = new Municipio();
-//        Estado estado = new Estado();
-//        Pais pais = new Pais();
-//
-//        estado.setPais(pais);
-//        municipio.setEstado(estado);
-//        colonia.setMunicipio(municipio);
-//        direccion.setColonia(colonia);
-//
-//        usuario.getDirecciones().add(direccion);
 
         model.addAttribute("Usuario", usuario);
         model.addAttribute("roles", rolesRs.correct ? rolesRs.objects : Collections.emptyList());

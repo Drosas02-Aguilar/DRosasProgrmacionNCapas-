@@ -1,7 +1,7 @@
 package com.digis01.DRosasAguilarDamianNCapasProject.DAO;
 
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Result;
-import com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario;
+import com.digis01.DRosasAguilarDamianNCapasProject.JPA.Usuario;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
@@ -13,8 +13,7 @@ import org.springframework.stereotype.Repository;
  *
  * @author digis
  */
-
-    @Repository
+@Repository
 public class UsuarioJPADAOImplementation implements IUsuarioJPADAO {
 
     @Autowired
@@ -25,15 +24,22 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPADAO {
         Result result = new Result();
 
         try {
-            // JPQL: consulta sobre la entidad Usuario
-            TypedQuery<Usuario> query = entityManager.createQuery(
-                    "SELECT u FROM Usuario u JOIN FETCH u.Rol r LEFT JOIN FETCH u.direcciones d LEFT JOIN FETCH d.Colonia c LEFT JOIN FETCH c.Municipio m LEFT JOIN FETCH m.Estado e LEFT JOIN FETCH e.Pais p",
-                    Usuario.class);
+            TypedQuery<Usuario> queryUsuario = entityManager.createQuery(
+                    "FROM Usuario ORDER BY  IdUsuario", Usuario.class);
+            List<Usuario> usuarios = queryUsuario.getResultList();
+            
+            result.objects = new ArrayList();
+            
+            for (Usuario usuario : usuarios){
+            
 
-            List<Usuario> usuarios = query.getResultList();
+                result.objects.add(new com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario(usuario));
+                
+            }
+                        result.correct = true;
+            
 
-            result.objects = new ArrayList<>(usuarios);
-            result.correct = true;
+            System.out.println("");
 
         } catch (Exception ex) {
             result.correct = false;
@@ -44,5 +50,3 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPADAO {
         return result;
     }
 }
-
-

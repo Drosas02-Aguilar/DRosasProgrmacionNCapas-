@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotBlank;
@@ -24,67 +25,75 @@ import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
+@Table(name = "USUARIO")
 public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "IdUsuario")
+    @Column(name = "idusuario")
     private int IdUsuario;
     
-    @Column(name = "Username", nullable  = false, unique = true)
+    @Column(name = "username", nullable  = false, unique = true)
     private String Username;
     
-    @Column(name = "Nombre", nullable = false)
+    @Column(name = "nombre", nullable = false)
     private String Nombre;
     
-    @Column(name = "Apellidopaterno", nullable = false)
+    @Column(name = "apellidopaterno")
     private String Apellidopaterno;
     
-    @Column(name = "Apellidomaterno", nullable = false)
+    @Column(name = "apellidomaterno")
     private String Apellidomaterno;
     
-    @Column (name = "Email", nullable = false, unique = true)
+    @Column (name = "email", nullable = false, unique = true)
     private String Email;
     
-    @Column (name = "Password", nullable = false)
+    @Column (name = "password", nullable = false)
     private String Password;
     
-    @Column (name = "Telefono", nullable = false)
+    @Column (name = "telefono", nullable = false)
     private String Telefono;
     
-    @Column (name = "Curp", length = 50, unique = true)
+    @Column (name = "curp", unique = true)
     private String Curp;
-    //private String Direccion;
     
-    @Column(name = "Celular")
+    @Column(name = "celular")
     private String Celular;
     
-    @Column(name = "Sexo", nullable = false)
+    @Column(name = "sexo", nullable = false)
     private String Sexo;
     
-    @Column(name = "TipoSangre")
+    @Column(name = "tiposangre")
     private String Tiposangre;
     
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
-    @Column(name = "FechaNacimiento")
+    @Column(name = "fechanacimiento")
     private Date FechaNacimiento;
     
     @ManyToOne()
-    @JoinColumn(name = "IdRol", nullable = false)
+    @JoinColumn(name = "Idrol", nullable = false)
     public Rol Rol;
     
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    public List<Direccion> direcciones;
+@OneToMany(
+        mappedBy = "usuario",         
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+public List<Direccion> direcciones = new ArrayList<>();
    
     @Lob 
-    @Column(name = "Imagen")
+    @Column(name = "imagen")
     private String Imagen;
     
     
     public Usuario() {
         this.direcciones = new ArrayList<>();
     }
+    
+    
+    
+    
 
     public Usuario(int idUsuario, String username, String nombre, String apellidopaterno, String apellidomaterno,
                    String email, String password, String telefono, String direccion, String celular, String sexo,

@@ -10,26 +10,22 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 
 @Entity
-@SequenceGenerator(
-        name = "ESTADO_SEQ_GEN",
-        sequenceName = "MUNICIPIO_SEQ",
-        allocationSize = 1
-)
-
+@Table(name = "ESTADO")
 public class Estado {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ESTADO_SEQ_GEN")
-    @Column(name = "IdEstado")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idestado")
     private int IdEstado;
 
-    @Column(name = "Nombre", nullable = false)
+    @Column(name = "nombre", nullable = false)
     private String Nombre;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "IdPais", nullable = false)
+    @ManyToOne()
+    @JoinColumn(name = "Idpais", nullable = false)
     public Pais Pais;
 
     public Pais getPais() {

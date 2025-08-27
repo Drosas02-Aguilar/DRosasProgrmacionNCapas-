@@ -7,17 +7,18 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 
 @Entity
- 
+ @Table(name = "PAIS")
 public class Pais {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)   
-    @Column(name = "IdPais")
+    @Column(name = "idpais")
     private int IdPais;
 
-    @Column(name = "Nombre", nullable = false, length = 120, unique = true)
+    @Column(name = "nombre", nullable = false)
     private String Nombre;
 
     public Pais() {

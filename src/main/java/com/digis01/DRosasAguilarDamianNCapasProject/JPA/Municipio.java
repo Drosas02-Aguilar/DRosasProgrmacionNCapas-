@@ -15,14 +15,14 @@ public class Municipio {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "IdMunicipio")
+    @Column(name = "idmunicipio")
     private int IdMunicipio;
 
-    @Column(name = "Nombre", nullable = false)
+    @Column(name = "nombre", nullable = false)
     private String Nombre;
 
-     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "IdEstado", nullable = false)
+     @ManyToOne()
+    @JoinColumn(name = "idestado", nullable = false)
     public Estado Estado;
 
     public Municipio() {

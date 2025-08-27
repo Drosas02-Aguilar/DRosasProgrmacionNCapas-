@@ -9,20 +9,22 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "COLONIA")
 public class Colonia {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "IdColonia")
+    @Column(name = "idcolonia")
     private int IdColonia;
-    @Column(name = "Nombre", nullable = false)
+    @Column(name = "nombre", nullable = false)
     private String Nombre;
-    @Column(name = "CodigoPostal", nullable = false)
+    @Column(name = "codigopostal", nullable = false)
     private String CodigoPostal;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "IdMunicipio", nullable = false)
+    @ManyToOne()
+    @JoinColumn(name = "idmunicipio", nullable = false)
     public Municipio Municipio;
 
     public Municipio getMunicipio() {
@@ -33,6 +35,11 @@ public class Colonia {
         this.Municipio = Municipio;
     }
 
+    public Colonia() {
+    }
+
+    
+    
     public Colonia(int IdColonia, String Nombre, String CodigoPostal) {
 
         this.IdColonia = IdColonia;

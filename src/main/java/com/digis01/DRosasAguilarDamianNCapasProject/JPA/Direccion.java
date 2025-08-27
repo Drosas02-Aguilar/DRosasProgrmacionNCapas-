@@ -9,25 +9,32 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "DIRECCION")
 public class Direccion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "IdDireccion")
-
+    @Column(name = "iddireccion")
     private int IdDireccion;
 
-    @Column(name = "Calle", nullable = false)
+    @Column(name = "calle", nullable = false)
     private String Calle;
-    @Column(name = "NumeroInterior")
+    @Column(name = "numerointerior")
     private String NumeroInterior;
-    @Column(name = "NumeroExterior", nullable = false)
+    
+    @Column(name = "numeroexterior", nullable = false)
     private String NumeroExterior;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "IdColonia", nullable = false)
+    
+    @ManyToOne()
+    @JoinColumn(name = "idcolonia", nullable = false)
     public Colonia Colonia;
+    
+    @ManyToOne()
+    @JoinColumn(name = "idusuario", nullable = false) 
+    public Usuario usuario;   
 
     public Colonia getColonia() {
         return Colonia;
@@ -77,6 +84,10 @@ public class Direccion {
 
     public void setNumeroExterior(String NumeroExterior) {
         this.NumeroExterior = NumeroExterior;
+    }
+
+    public void setUsuario(com.digis01.DRosasAguilarDamianNCapasProject.JPA.Usuario uJPA) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
 }
