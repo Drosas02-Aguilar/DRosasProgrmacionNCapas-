@@ -27,6 +27,19 @@ public class Municipio {
 
     public Municipio() {
     }
+    
+    public Municipio(com.digis01.DRosasAguilarDamianNCapasProject.ML.Municipio mML) {
+    if (mML == null) return;
+    this.IdMunicipio = mML.getIdMunicipio();   // si vas a INSERT, puedes omitir
+    this.Nombre      = mML.getNombre();
+
+    if (mML.getEstado() != null) {
+        // Variante completa:
+        this.Estado = new Estado(mML.getEstado());
+
+       
+    }
+}
 
     public Municipio(int IdMunicipio, String Nombre) {
         this.IdMunicipio = IdMunicipio;

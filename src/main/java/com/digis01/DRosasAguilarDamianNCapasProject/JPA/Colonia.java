@@ -38,7 +38,19 @@ public class Colonia {
     public Colonia() {
     }
 
-    
+    public Colonia(com.digis01.DRosasAguilarDamianNCapasProject.ML.Colonia cML) {
+    if (cML == null) return;
+    this.IdColonia   = cML.getIdColonia();     // si quieres INSERT, puedes omitir este Id
+    this.Nombre      = cML.getNombre();
+    this.CodigoPostal= cML.getCodigoPostal();
+
+    if (cML.getMunicipio() != null) {
+        // Variante completa (anidada):
+        this.Municipio = new Municipio(cML.getMunicipio());
+
+       
+    }
+}
     
     public Colonia(int IdColonia, String Nombre, String CodigoPostal) {
 

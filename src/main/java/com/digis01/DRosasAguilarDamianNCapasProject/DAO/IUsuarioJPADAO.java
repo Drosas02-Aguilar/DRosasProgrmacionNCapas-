@@ -14,6 +14,17 @@ public interface IUsuarioJPADAO {
     
     Result GetAll();
     
+    Result Add(com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario usuario);
+    
+    Result Update(com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario usuario);
+    
+    Result GetByIdUsuario(int IdUsuario);
+    
+    Result DireccionesByIdUsuario(int IdUsuario);
+    
+    Result Delete(int IdUsuario);
+    
+    
         
     }
 

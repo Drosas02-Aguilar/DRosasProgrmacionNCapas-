@@ -23,6 +23,13 @@ public class Pais {
 
     public Pais() {
     }
+    
+    
+    public Pais(com.digis01.DRosasAguilarDamianNCapasProject.ML.Pais pML) {
+    if (pML == null) return;
+    this.IdPais = pML.getIdPais();             // si vas a INSERT, puedes omitir
+    this.Nombre = pML.getNombre();
+}
 
     public Pais(int IdPais, String Nombre) {
         this.IdPais = IdPais;

@@ -33,7 +33,7 @@ public class Usuario {
     @Column(name = "idusuario")
     private int IdUsuario;
     
-    @Column(name = "username", nullable  = false, unique = true)
+    @Column(name = "username", nullable  = false)
     private String Username;
     
     @Column(name = "nombre", nullable = false)
@@ -45,7 +45,7 @@ public class Usuario {
     @Column(name = "apellidomaterno")
     private String Apellidomaterno;
     
-    @Column (name = "email", nullable = false, unique = true)
+    @Column (name = "email", nullable = false)
     private String Email;
     
     @Column (name = "password", nullable = false)
@@ -54,7 +54,7 @@ public class Usuario {
     @Column (name = "telefono", nullable = false)
     private String Telefono;
     
-    @Column (name = "curp", unique = true)
+    @Column (name = "curp")
     private String Curp;
     
     @Column(name = "celular")
@@ -91,7 +91,37 @@ public List<Direccion> direcciones = new ArrayList<>();
         this.direcciones = new ArrayList<>();
     }
     
-    
+    public Usuario (com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario usuarioML){
+        this.Nombre = usuarioML.getNombre();
+        this.Apellidopaterno = usuarioML.getApellidopaterno();
+        this.Apellidomaterno = usuarioML.getApellidomaterno();
+        this.Username = usuarioML.getUsername();
+        this.Email = usuarioML.getEmail();
+        this.Password = usuarioML.getPassword();
+        this.Telefono = usuarioML.getTelefono();
+        this.Celular = usuarioML.getCelular();
+        this.FechaNacimiento = usuarioML.getFechaNacimiento();
+        this.Sexo = usuarioML.getSexo();
+        this.Telefono = usuarioML.getTelefono();
+        this.Celular = usuarioML.getCelular();
+        this.Curp = usuarioML.getCurp();
+        this.Tiposangre = usuarioML.getTiposangre();
+        this.Imagen = usuarioML.getImagen();
+        this.Rol = new Rol();
+        this.Rol.setIdRol(usuarioML.Rol.getIdRol());
+        for (com.digis01.DRosasAguilarDamianNCapasProject.ML.Direccion direccionml : usuarioML.direcciones) {
+            Direccion direccion = new Direccion();
+            direccion.setCalle(direccionml.getCalle());
+            direccion.setNumeroInterior(direccionml.getNumeroInterior());
+            direccion.setNumeroExterior(direccionml.getNumeroExterior());
+            direccion.Colonia = new Colonia();
+            direccion.Colonia.setIdColonia(direccionml.Colonia.getIdColonia());
+            direccion.usuario = this;
+            
+            direcciones.add(direccion);
+            
+        }
+    }
     
     
 

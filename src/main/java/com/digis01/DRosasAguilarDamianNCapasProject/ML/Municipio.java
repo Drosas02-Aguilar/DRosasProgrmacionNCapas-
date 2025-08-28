@@ -7,6 +7,18 @@ public class Municipio {
     
     public Municipio(){}
     public Estado Estado;
+    
+    
+    public Municipio(com.digis01.DRosasAguilarDamianNCapasProject.JPA.Municipio mJPA) {
+        if (mJPA == null) return;
+        this.IdMunicipio = mJPA.getIdMunicipio();
+        this.Nombre = mJPA.getNombre();
+
+        if (mJPA.getEstado() != null) {
+            this.Estado = new Estado(mJPA.getEstado());
+        }
+    }
+    
 
     public Municipio(int IdMunicipio, String Nombre) {
         this.IdMunicipio = IdMunicipio;

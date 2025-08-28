@@ -11,10 +11,25 @@ public class Colonia {
         return Municipio;
     }
 
+    public Colonia() {}
+
+    public Colonia(com.digis01.DRosasAguilarDamianNCapasProject.JPA.Colonia cJPA) {
+        if (cJPA == null) return;
+        this.IdColonia = cJPA.getIdColonia();
+        this.Nombre = cJPA.getNombre();
+        this.CodigoPostal = cJPA.getCodigoPostal();
+
+        if (cJPA.getMunicipio() != null) {
+            this.Municipio = new Municipio(cJPA.getMunicipio());
+        }
+    }
+    
+    
     public void setMunicipio(Municipio Municipio) {
         this.Municipio = Municipio;
     }
 
+    
    
 
    /* public Colonia(int IdColonia, String Nombre, String CodigoPostal) {

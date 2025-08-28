@@ -188,8 +188,10 @@ public class UsuarioController {
                 }
 
             }
-            usuarioDAOImplementation.Add(usuario);
-            return "redirect:/usuario";
+         //   usuarioDAOImplementation.Add(usuario);
+           
+         Result result = usuarioJPADAOImplementation.Add(usuario);
+         return "redirect:/usuario";
         }
 
     }
@@ -197,7 +199,10 @@ public class UsuarioController {
     // ========================= EDITAR USUARIO (VISTA DETALLE/EDICIÓN) =========================
     @GetMapping("editarUsuario")
     public String EditarUsuario(@RequestParam("idUsuario") int idUsuario, Model model) {
-        Result result = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
+        //Result result = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
+        
+        Result result = usuarioJPADAOImplementation.DireccionesByIdUsuario(idUsuario);
+        
         if (!result.correct || result.object == null) {
             return "Error";
         }
@@ -235,7 +240,8 @@ public class UsuarioController {
     // ========================= EDITAR SOLO INFO DE USUARIO =========================
     @GetMapping("editarInfo")
     public String EditarInfoUsuario(@RequestParam("idUsuario") int idUsuario, Model model) {
-        Result result = usuarioDAOImplementation.GetByiDUsuario(idUsuario);
+        //Result result = usuarioDAOImplementation.GetByiDUsuario(idUsuario);
+        Result result = usuarioJPADAOImplementation.GetByIdUsuario(idUsuario);
         if (!result.correct || result.object == null) {
             return "Error";
         }
@@ -277,7 +283,8 @@ public class UsuarioController {
 
                 }
             }
-            usuarioDAOImplementation.update(usuario);
+            //usuarioDAOImplementation.update(usuario);
+            Result result = usuarioJPADAOImplementation.Update(usuario);
             return "redirect:/usuario/editarUsuario?idUsuario=" + usuario.getIdUsuario();
 
         }
@@ -286,12 +293,14 @@ public class UsuarioController {
     // ========================= AGREGAR DIRECCIÓN A USUARIO (FORM) =========================
     @GetMapping("direccion/add")
     public String DireccionAddForm(@RequestParam("idUsuario") int idUsuario, Model model) {
-        Result rs = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
-        if (!rs.correct || rs.object == null) {
+        //Result rs = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
+        Result result = usuarioJPADAOImplementation.DireccionesByIdUsuario(idUsuario);
+        
+        if (!result.correct || result.object == null) {
             return "Error";
         }
 
-        Usuario usuario = (Usuario) rs.object;
+        Usuario usuario = (Usuario) result.object;
         Result paisesRs = paisDAOImplementation.GetAllPais();
 
         Direccion direccion = new Direccion();
@@ -318,7 +327,9 @@ public class UsuarioController {
     public String DireccionAdd(@RequestParam("idUsuario") int idUsuario,
             @Valid Direccion direccion, BindingResult br, Model model) {
         if (br.hasErrors()) {
-            Result result = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
+            //Result result = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
+             Result result = usuarioJPADAOImplementation.DireccionesByIdUsuario(idUsuario);
+            
             Result paises = paisDAOImplementation.GetAllPais();
 
             model.addAttribute("usuario", result.correct ? result.object : null);
@@ -337,7 +348,8 @@ public class UsuarioController {
     public String DireccionEditForm(@RequestParam("idUsuario") int idUsuario,
             @RequestParam("idDireccion") int idDireccion,
             Model model) {
-        Result result = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
+        //Result result = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
+        Result result = usuarioJPADAOImplementation.DireccionesByIdUsuario(idUsuario);
         if (!result.correct || result.object == null) {
             return "Error";
         }
@@ -362,7 +374,8 @@ public class UsuarioController {
     public String DireccionUpdate(@RequestParam("idUsuario") int idUsuario,
             @Valid Direccion direccion, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            Result result = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
+            //Result result = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
+            Result result = usuarioJPADAOImplementation.DireccionesByIdUsuario(idUsuario);
             Result paisesr = paisDAOImplementation.GetAllPais();
 
             model.addAttribute("usuario", result.correct ? result.object : null);
@@ -379,7 +392,8 @@ public class UsuarioController {
     // ========================= ELIMINAR USUARIO =========================
     @GetMapping("eliminar")
     public String Eliminar(@RequestParam("id") int idUsuario) {
-        usuarioDAOImplementation.deleteById(idUsuario);
+       // usuarioDAOImplementation.deleteById(idUsuario);
+        Result result = usuarioJPADAOImplementation.Delete(idUsuario);
         return "redirect:/usuario";
     }
 
@@ -501,7 +515,9 @@ public class UsuarioController {
 
             if (usuarios != null) {
                 for (Usuario usuario : usuarios) {
-                    usuarioDAOImplementation.Add(usuario);
+                   // usuarioDAOImplementation.Add(usuario);
+            
+                   Result result = usuarioJPADAOImplementation.Add(usuario);
                 }
             }
 

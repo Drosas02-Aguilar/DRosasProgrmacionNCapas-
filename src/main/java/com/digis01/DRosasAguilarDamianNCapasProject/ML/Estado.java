@@ -11,6 +11,19 @@ public class Estado {
 
         return Pais;
     }
+    
+     public Estado() {}
+
+    public Estado(com.digis01.DRosasAguilarDamianNCapasProject.JPA.Estado eJPA) {
+        if (eJPA == null) return;
+        this.IdEstado = eJPA.getIdEstado();
+        this.Nombre = eJPA.getNombre();
+
+        if (eJPA.getPais() != null) {
+            this.Pais = new Pais(eJPA.getPais());
+        }
+    }
+ 
 
     // public Estado() {}
     /*  public Estado(int IdEstado, String Nombre) {

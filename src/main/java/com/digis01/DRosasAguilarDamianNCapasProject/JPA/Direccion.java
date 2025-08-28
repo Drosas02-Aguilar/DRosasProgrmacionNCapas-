@@ -51,6 +51,17 @@ public class Direccion {
     public Direccion() {
     }
 
+    public Direccion(com.digis01.DRosasAguilarDamianNCapasProject.ML.Direccion dML) {
+        this.IdDireccion = dML.getIdDireccion();
+        this.Calle = dML.getCalle();
+        this.NumeroInterior = dML.getNumeroInterior();
+        this.NumeroExterior = dML.getNumeroExterior();
+
+        if (dML.getColonia() != null) {
+            this.Colonia = new Colonia(dML.getColonia());
+        }
+    }
+    
     public Direccion(int IdDireccion, String Calle, String NumeroExterior, String NumeroInterior) {
         this.IdDireccion = IdDireccion;
         this.Calle = Calle;

@@ -22,7 +22,21 @@ public class Direccion {
         return IdDireccion;
     }
 
-    // public Direccion() {}
+     public Direccion() {}
+
+ public Direccion(com.digis01.DRosasAguilarDamianNCapasProject.JPA.Direccion dJPA) {
+        if (dJPA == null) return;
+        this.IdDireccion = dJPA.getIdDireccion();
+        this.Calle = dJPA.getCalle();
+        this.NumeroInterior = dJPA.getNumeroInterior();
+        this.NumeroExterior = dJPA.getNumeroExterior();
+
+        if (dJPA.getColonia() != null) {
+            this.Colonia = new Colonia(dJPA.getColonia());
+        }
+ }
+     
+     
     // public Direccion(int IdDireccion, String Calle, String NumeroExterior, String NumeroInterior) {
     //  this.IdDireccion = IdDireccion;
     //   this.Calle = Calle;
