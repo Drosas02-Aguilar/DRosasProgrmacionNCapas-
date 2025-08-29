@@ -3,11 +3,15 @@ package com.digis01.DRosasAguilarDamianNCapasProject.DAO;
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Result;
 import com.digis01.DRosasAguilarDamianNCapasProject.JPA.Usuario;
 import com.digis01.DRosasAguilarDamianNCapasProject.JPA.Direccion;
+import com.digis01.DRosasAguilarDamianNCapasProject.JPA.Rol;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -79,26 +83,29 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPADAO {
         Result result = new Result();
 
         try {
+        Usuario usuarioBD = entityManager.find(Usuario.class, usuarioML.getIdUsuario());
 
-            Usuario usuarioJPA = new Usuario(usuarioML);
+        // 2) Mapear campos simples desde ML
+        Usuario usuarioJPA = new Usuario(usuarioML);
 
-            usuarioJPA.setIdUsuario(usuarioML.getIdUsuario());
+        // 3) Asegurar que es UPDATE y no INSERT
+        usuarioJPA.setIdUsuario(usuarioML.getIdUsuario());
 
-            Usuario actualizado = entityManager.merge(usuarioJPA);
+        if (usuarioBD != null && usuarioBD.direcciones != null) {
+            usuarioJPA.direcciones = usuarioBD.direcciones;
+        }
 
-            result.object = new com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario(actualizado);
+        entityManager.merge(usuarioJPA);
+    ;
 
-            result.correct = true;
-
+        result.correct = true;
         } catch (Exception ex) {
-
             result.correct = false;
             result.errorMessage = ex.getLocalizedMessage();
             result.ex = ex;
-
         }
-
         return result;
+
     }
 
     @Transactional
@@ -131,20 +138,13 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPADAO {
         Result result = new Result();
 
         try {
-            TypedQuery<Usuario> q = entityManager.createQuery(
-                    "SELECT DISTINCT u FROM Usuario u "
-                    + "LEFT JOIN FETCH u.direcciones d "
-                    + "LEFT JOIN FETCH d.Colonia c "
-                    + "LEFT JOIN FETCH c.Municipio m "
-                    + "LEFT JOIN FETCH m.Estado e "
-                    + "LEFT JOIN FETCH e.Pais p "
-                    + "WHERE u.IdUsuario = :id",
-                    Usuario.class
-            );
-            q.setParameter("id", IdUsuario);
 
-            Usuario usuarioJPA = q.getSingleResult();
-            result.object = new com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario(usuarioJPA);
+            Usuario usuario = entityManager.find(Usuario.class, IdUsuario);
+            /*convertir a ML*/
+            com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario usuarioML
+                    = new com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario(usuario);
+
+            result.object = new com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario(usuario);
             result.correct = true;
 
         } catch (Exception ex) {
@@ -152,6 +152,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPADAO {
             result.errorMessage = ex.getMessage();
             result.ex = ex;
         }
+
         return result;
     }
 

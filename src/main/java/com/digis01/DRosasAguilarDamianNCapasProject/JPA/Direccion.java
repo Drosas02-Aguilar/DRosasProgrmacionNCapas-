@@ -62,6 +62,21 @@ public class Direccion {
         }
     }
     
+    
+    public Direccion(com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario usuarioML){
+//        alumnoML.Direcciones.get(0) -> Direccion ML
+        com.digis01.DRosasAguilarDamianNCapasProject.ML.Direccion direccionML = usuarioML.direcciones.get(0); 
+        
+        this.IdDireccion = direccionML.getIdDireccion();
+        this.Calle = direccionML.getCalle();
+        this.NumeroInterior = direccionML.getNumeroInterior();
+        this.NumeroExterior = direccionML.getNumeroExterior();
+        this.Colonia = new Colonia();
+        this.Colonia.setIdColonia(direccionML.Colonia.getIdColonia());
+        this.usuario = new Usuario();
+        this.usuario.setIdUsuario(usuarioML.getIdUsuario());
+    }
+    
     public Direccion(int IdDireccion, String Calle, String NumeroExterior, String NumeroInterior) {
         this.IdDireccion = IdDireccion;
         this.Calle = Calle;

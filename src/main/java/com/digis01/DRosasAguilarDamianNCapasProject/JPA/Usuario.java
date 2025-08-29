@@ -107,19 +107,29 @@ public List<Direccion> direcciones = new ArrayList<>();
         this.Curp = usuarioML.getCurp();
         this.Tiposangre = usuarioML.getTiposangre();
         this.Imagen = usuarioML.getImagen();
-        this.Rol = new Rol();
+         this.Rol = new Rol();
+    if (usuarioML.Rol != null) {
         this.Rol.setIdRol(usuarioML.Rol.getIdRol());
-        for (com.digis01.DRosasAguilarDamianNCapasProject.ML.Direccion direccionml : usuarioML.direcciones) {
-            Direccion direccion = new Direccion();
-            direccion.setCalle(direccionml.getCalle());
-            direccion.setNumeroInterior(direccionml.getNumeroInterior());
-            direccion.setNumeroExterior(direccionml.getNumeroExterior());
-            direccion.Colonia = new Colonia();
-            direccion.Colonia.setIdColonia(direccionml.Colonia.getIdColonia());
-            direccion.usuario = this;
+    }
+
+    if (usuarioML.direcciones != null && !usuarioML.direcciones.isEmpty()) {
+
+        if (usuarioML.direcciones.get(0).getIdDireccion() == -1) {
+        } else {
+            for (com.digis01.DRosasAguilarDamianNCapasProject.ML.Direccion direccionml : usuarioML.direcciones) {
+                Direccion direccion = new Direccion();
+                direccion.setCalle(direccionml.getCalle());
+                direccion.setNumeroInterior(direccionml.getNumeroInterior());
+                direccion.setNumeroExterior(direccionml.getNumeroExterior());
+                direccion.Colonia = new Colonia();
+                direccion.Colonia.setIdColonia(direccionml.Colonia.getIdColonia());
+                direccion.usuario = this;
+
+                // Asegúrate de que 'direcciones' esté inicializada (p.ej. new ArrayList<>())
+                this.direcciones.add(direccion);
             
-            direcciones.add(direccion);
-            
+            }
+        }
         }
     }
     

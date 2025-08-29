@@ -1,12 +1,17 @@
 package com.digis01.DRosasAguilarDamianNCapasProject.Controller;
 
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.ColoniaDAOImplementation;
+import com.digis01.DRosasAguilarDamianNCapasProject.DAO.ColoniaJPADAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.EstadoDAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.MunicipioDAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.PaisDAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.RolDAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.UsuarioDAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.DireccionDAOImplementation;
+import com.digis01.DRosasAguilarDamianNCapasProject.DAO.DireccionJPADAOImplementation;
+import com.digis01.DRosasAguilarDamianNCapasProject.DAO.EstadoJPADAOImplementation;
+import com.digis01.DRosasAguilarDamianNCapasProject.DAO.MunicipioJPADAOImplementation;
+import com.digis01.DRosasAguilarDamianNCapasProject.DAO.PaisJPADAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.UsuarioJPADAOImplementation;
 import java.util.Base64;
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Colonia;
@@ -98,6 +103,17 @@ public class UsuarioController {
     private ColoniaDAOImplementation coloniaDAOImplementation;
     @Autowired
     private DireccionDAOImplementation direccionDAOImplementation;
+    
+    @Autowired
+    private DireccionJPADAOImplementation direccionJPADAOImplementation;
+    @Autowired
+    private  ColoniaJPADAOImplementation coloniaJPADAOImplementation;
+    @Autowired
+    private EstadoJPADAOImplementation estadoJPADAOImplementation;
+    @Autowired
+    private MunicipioJPADAOImplementation municipioJPADAOImplementation;
+    @Autowired
+    private PaisJPADAOImplementation paisJPADAOImplementation;
 
     // ========================= LISTADO =========================
     @GetMapping
@@ -144,7 +160,7 @@ public class UsuarioController {
     @GetMapping("add")
     public String add(Model model) {
         Result rolesRs = rolDAOImplementation.GetAllRol();
-        Result paisesRs = paisDAOImplementation.GetAllPais();
+        Result paisesRs = paisJPADAOImplementation.GetAllPais();
 
         Usuario usuario = new Usuario();
 
@@ -162,7 +178,7 @@ public class UsuarioController {
 
         if (br.hasErrors()) {
             Result rolesRs = rolDAOImplementation.GetAllRol();
-            Result paisesRs = paisDAOImplementation.GetAllPais();
+            Result paisesRs = paisJPADAOImplementation.GetAllPais();
             model.addAttribute("roles", rolesRs.correct ? rolesRs.objects : Collections.emptyList());
             model.addAttribute("paises", paisesRs.correct ? paisesRs.objects : Collections.emptyList());
             model.addAttribute("mode", "full");
@@ -201,11 +217,9 @@ public class UsuarioController {
     public String EditarUsuario(@RequestParam("idUsuario") int idUsuario, Model model) {
         //Result result = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
         
-        Result result = usuarioJPADAOImplementation.DireccionesByIdUsuario(idUsuario);
+            Result result = usuarioJPADAOImplementation.DireccionesByIdUsuario(idUsuario);
         
-        if (!result.correct || result.object == null) {
-            return "Error";
-        }
+      
 
         Usuario usuario = (Usuario) result.object;
 
@@ -214,7 +228,7 @@ public class UsuarioController {
         model.addAttribute("usuario", usuario);
 
         if (usuario.getDirecciones() == null || usuario.getDirecciones().isEmpty()) {
-            Result paisesRs = paisDAOImplementation.GetAllPais();
+            Result paisesRs = paisJPADAOImplementation.GetAllPais();
 
             Direccion direccion = new Direccion();
             Colonia colonia = new Colonia();
@@ -301,7 +315,7 @@ public class UsuarioController {
         }
 
         Usuario usuario = (Usuario) result.object;
-        Result paisesRs = paisDAOImplementation.GetAllPais();
+        Result paisesRs = paisJPADAOImplementation.GetAllPais();
 
         Direccion direccion = new Direccion();
         Colonia colonia = new Colonia();
@@ -330,7 +344,7 @@ public class UsuarioController {
             //Result result = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
              Result result = usuarioJPADAOImplementation.DireccionesByIdUsuario(idUsuario);
             
-            Result paises = paisDAOImplementation.GetAllPais();
+            Result paises = paisJPADAOImplementation.GetAllPais();
 
             model.addAttribute("usuario", result.correct ? result.object : null);
             model.addAttribute("direccion", direccion);
@@ -339,7 +353,8 @@ public class UsuarioController {
             model.addAttribute("action", "add");
             return "UsuarioForm";
         }
-        direccionDAOImplementation.addToUsuario(idUsuario, direccion);
+        //direccionDAOImplementation.addToUsuario(idUsuario, direccion);
+     Result result = direccionJPADAOImplementation.AddDireccion(idUsuario, direccion);
         return "redirect:/usuario/editarUsuario?idUsuario=" + idUsuario;
     }
 
@@ -354,12 +369,13 @@ public class UsuarioController {
             return "Error";
         }
 
-        Result resultd = direccionDAOImplementation.getbyid(idDireccion);
+     //   Result resultd = direccionDAOImplementation.getbyid(idDireccion);
+        Result resultd = direccionJPADAOImplementation.GetByIdDireccion(idDireccion);
         if (!resultd.correct || resultd.object == null) {
             return "Error";
         }
 
-        Result paises = paisDAOImplementation.GetAllPais();
+        Result paises = paisJPADAOImplementation.GetAllPais();
 
         model.addAttribute("usuario", result.object);
         model.addAttribute("direccion", resultd.object);
@@ -376,7 +392,7 @@ public class UsuarioController {
         if (bindingResult.hasErrors()) {
             //Result result = usuarioDAOImplementation.DireccionesByIdUsuario(idUsuario);
             Result result = usuarioJPADAOImplementation.DireccionesByIdUsuario(idUsuario);
-            Result paisesr = paisDAOImplementation.GetAllPais();
+            Result paisesr = paisJPADAOImplementation.GetAllPais();
 
             model.addAttribute("usuario", result.correct ? result.object : null);
             model.addAttribute("direccion", direccion);
@@ -385,7 +401,9 @@ public class UsuarioController {
             model.addAttribute("action", "edit");
             return "UsuarioForm";
         }
-        direccionDAOImplementation.updateDireccion(direccion);
+        //direccionDAOImplementation.updateDireccion(direccion);
+        Result result = direccionJPADAOImplementation.Update(direccion);
+        
         return "redirect:/usuario/editarUsuario?idUsuario=" + idUsuario;
     }
 
@@ -401,26 +419,26 @@ public class UsuarioController {
     @GetMapping("getEstadosByPais")
     @ResponseBody
     public Result EstadoByidPais(@RequestParam("IdPais") int IdPais) {
-        return estadoDAOImplementation.EstadoByidPais(IdPais);
+        return estadoJPADAOImplementation.EstadoByidPais(IdPais);
     }
 
     @GetMapping("MunicipiosGetByIdEstado")
     @ResponseBody
     public Result municipioByIdEstado(@RequestParam("IdEstado") int IdEstado) {
-        return municipioDAOImplementation.MunicipioByidEstado(IdEstado);
+        return municipioJPADAOImplementation.MunicipioByidEstado(IdEstado);
     }
 
     @GetMapping("ColoniasGetByIdMunicipio")
     @ResponseBody
     public Result ColoniaGetByIdMunicipio(@RequestParam("IdMunicipio") int IdMunicipio) {
-        return coloniaDAOImplementation.ColoniaByMunicipio(IdMunicipio);
+        return coloniaJPADAOImplementation.ColoniaByMunicipio(IdMunicipio);
     }
 
     // ========================= ELIMINAR DIRECCIÓN =========================
     @GetMapping("direccion/delete")
     public String DireccionDelete(@RequestParam int idDireccion,
             @RequestParam int idUsuario) {
-        direccionDAOImplementation.delete(idDireccion);
+        direccionJPADAOImplementation.Delete(idDireccion);
         return "redirect:/usuario/editarUsuario?idUsuario=" + idUsuario;
     }
 
