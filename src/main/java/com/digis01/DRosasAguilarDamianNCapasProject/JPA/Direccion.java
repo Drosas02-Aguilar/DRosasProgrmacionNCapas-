@@ -24,17 +24,27 @@ public class Direccion {
     private String Calle;
     @Column(name = "numerointerior")
     private String NumeroInterior;
-    
+
     @Column(name = "numeroexterior", nullable = false)
     private String NumeroExterior;
-    
+
     @ManyToOne()
     @JoinColumn(name = "idcolonia", nullable = false)
     public Colonia Colonia;
-    
+
     @ManyToOne()
-    @JoinColumn(name = "idusuario", nullable = false) 
-    public Usuario usuario;   
+    @JoinColumn(name = "idusuario", nullable = false)
+    public Usuario usuario;
+    
+    
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
 
     public Colonia getColonia() {
         return Colonia;
@@ -61,12 +71,11 @@ public class Direccion {
             this.Colonia = new Colonia(dML.getColonia());
         }
     }
-    
-    
-    public Direccion(com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario usuarioML){
+
+    public Direccion(com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario usuarioML) {
 //        alumnoML.Direcciones.get(0) -> Direccion ML
-        com.digis01.DRosasAguilarDamianNCapasProject.ML.Direccion direccionML = usuarioML.direcciones.get(0); 
-        
+        com.digis01.DRosasAguilarDamianNCapasProject.ML.Direccion direccionML = usuarioML.direcciones.get(0);
+
         this.IdDireccion = direccionML.getIdDireccion();
         this.Calle = direccionML.getCalle();
         this.NumeroInterior = direccionML.getNumeroInterior();
@@ -76,7 +85,7 @@ public class Direccion {
         this.usuario = new Usuario();
         this.usuario.setIdUsuario(usuarioML.getIdUsuario());
     }
-    
+
     public Direccion(int IdDireccion, String Calle, String NumeroExterior, String NumeroInterior) {
         this.IdDireccion = IdDireccion;
         this.Calle = Calle;
@@ -112,8 +121,6 @@ public class Direccion {
         this.NumeroExterior = NumeroExterior;
     }
 
-    public void setUsuario(com.digis01.DRosasAguilarDamianNCapasProject.JPA.Usuario uJPA) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+ 
 
 }

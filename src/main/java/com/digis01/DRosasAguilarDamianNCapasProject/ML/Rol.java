@@ -7,6 +7,12 @@ public class Rol {
  
  public Rol(){}
  
+  public Rol(com.digis01.DRosasAguilarDamianNCapasProject.JPA.Rol rolJPA) {
+        if (rolJPA != null) {
+            this.IdRol = rolJPA.getIdRol();
+            this.Nombre = rolJPA.getNombre();
+        }
+    }
  
  
   public Rol(int IdRol, String Nombre) {

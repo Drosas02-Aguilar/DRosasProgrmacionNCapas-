@@ -12,6 +12,7 @@ import com.digis01.DRosasAguilarDamianNCapasProject.DAO.DireccionJPADAOImplement
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.EstadoJPADAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.MunicipioJPADAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.PaisJPADAOImplementation;
+import com.digis01.DRosasAguilarDamianNCapasProject.DAO.RolJPADAOImplementation;
 import com.digis01.DRosasAguilarDamianNCapasProject.DAO.UsuarioJPADAOImplementation;
 import java.util.Base64;
 import com.digis01.DRosasAguilarDamianNCapasProject.ML.Colonia;
@@ -114,7 +115,8 @@ public class UsuarioController {
     private MunicipioJPADAOImplementation municipioJPADAOImplementation;
     @Autowired
     private PaisJPADAOImplementation paisJPADAOImplementation;
-
+    @Autowired
+    private RolJPADAOImplementation rolJPADAOImplementation;
     // ========================= LISTADO =========================
     @GetMapping
     public String Index(Model model) {
@@ -127,8 +129,10 @@ public class UsuarioController {
         filtro.getRol().setIdRol(0);
         model.addAttribute("usuariobusqueda", filtro);
 
-        Result rolesRs = rolDAOImplementation.GetAllRol();
-        model.addAttribute("roles", rolesRs.correct ? rolesRs.objects : Collections.emptyList());
+       // Result rolesRs = rolDAOImplementation.GetAllRol();
+       Result rolesRs = rolJPADAOImplementation.GetAllRol();
+       
+       model.addAttribute("roles", rolesRs.correct ? rolesRs.objects : Collections.emptyList());
 
         return "UsuarioIndex";
     }
@@ -159,8 +163,10 @@ public class UsuarioController {
     // ========================= NUEVO USUARIO (FORM COMPLETO) =========================
     @GetMapping("add")
     public String add(Model model) {
-        Result rolesRs = rolDAOImplementation.GetAllRol();
-        Result paisesRs = paisJPADAOImplementation.GetAllPais();
+      // Result rolesRs = rolDAOImplementation.GetAllRol();
+        Result rolesRs = rolJPADAOImplementation.GetAllRol();
+        
+      Result paisesRs = paisJPADAOImplementation.GetAllPais();
 
         Usuario usuario = new Usuario();
 
@@ -177,7 +183,8 @@ public class UsuarioController {
     public String Add(@Valid Usuario usuario, BindingResult br, Model model, @RequestParam("userFotoInput") MultipartFile imagen) {
 
         if (br.hasErrors()) {
-            Result rolesRs = rolDAOImplementation.GetAllRol();
+            //Result rolesRs = rolDAOImplementation.GetAllRol();
+            Result rolesRs = rolJPADAOImplementation.GetAllRol();
             Result paisesRs = paisJPADAOImplementation.GetAllPais();
             model.addAttribute("roles", rolesRs.correct ? rolesRs.objects : Collections.emptyList());
             model.addAttribute("paises", paisesRs.correct ? paisesRs.objects : Collections.emptyList());
@@ -223,7 +230,8 @@ public class UsuarioController {
 
         Usuario usuario = (Usuario) result.object;
 
-        Result rolesRs = rolDAOImplementation.GetAllRol();
+        //Result rolesRs = rolDAOImplementation.GetAllRol();
+        Result rolesRs = rolJPADAOImplementation.GetAllRol();
         model.addAttribute("roles", rolesRs.correct ? rolesRs.objects : Collections.emptyList());
         model.addAttribute("usuario", usuario);
 
@@ -261,8 +269,9 @@ public class UsuarioController {
         }
 
         Usuario usuario = (Usuario) result.object;
-        Result rolesRs = rolDAOImplementation.GetAllRol();
-
+        
+        //Result rolesRs = rolDAOImplementation.GetAllRol();
+        Result rolesRs = rolJPADAOImplementation.GetAllRol();
         model.addAttribute("Usuario", usuario);
         model.addAttribute("roles", rolesRs.correct ? rolesRs.objects : Collections.emptyList());
         model.addAttribute("mode", "usuario");
@@ -274,7 +283,8 @@ public class UsuarioController {
     @PostMapping("update")
     public String Update(@Valid @ModelAttribute("Usuario") Usuario usuario, BindingResult bindingResult, Model model, @RequestParam("userFotoInput") MultipartFile imagen) {
         if (bindingResult.hasErrors()) {
-            Result result = rolDAOImplementation.GetAllRol();
+           // Result result = rolDAOImplementation.GetAllRol();
+            Result result = rolJPADAOImplementation.GetAllRol();
             model.addAttribute("roles", result.correct ? result.objects : Collections.emptyList());
             model.addAttribute("mode", "usuario");
             model.addAttribute("action", "edit");
@@ -535,7 +545,9 @@ public class UsuarioController {
                 for (Usuario usuario : usuarios) {
                    // usuarioDAOImplementation.Add(usuario);
             
-                   Result result = usuarioJPADAOImplementation.Add(usuario);
+             //      Result result = usuarioJPADAOImplementation.Add(usuario);
+             
+             Result result = usuarioJPADAOImplementation.Add(usuario);
                 }
             }
 

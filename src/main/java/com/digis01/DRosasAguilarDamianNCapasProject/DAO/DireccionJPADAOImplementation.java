@@ -26,12 +26,14 @@ public class DireccionJPADAOImplementation implements IDireccionJPADAO {
   public Result AddDireccion(int IdUsuario, com.digis01.DRosasAguilarDamianNCapasProject.ML.Direccion direccionML) {
     Result result = new Result();
     try {
-        Direccion direccionJPA = new Direccion(direccionML);
+         Direccion direccionJPA = new Direccion(direccionML);
 
+        // aquí haces el find
         Usuario usuario = entityManager.find(Usuario.class, IdUsuario);
-        
+        Colonia colonia = entityManager.find(Colonia.class, direccionML.getColonia().getIdColonia());
+
         direccionJPA.setUsuario(usuario);
-        direccionJPA.setColonia(entityManager.find(Colonia.class, direccionML.getColonia().getIdColonia()));
+        direccionJPA.setColonia(colonia);
 
         entityManager.persist(direccionJPA);
         entityManager.flush();
@@ -39,6 +41,16 @@ public class DireccionJPADAOImplementation implements IDireccionJPADAO {
         direccionML.setIdDireccion(direccionJPA.getIdDireccion());
         result.object = direccionML;
         result.correct = true;
+        
+       // direccionJPA.setUsuario(usuario);
+     //   direccionJPA.setColonia(entityManager.find(Colonia.class, direccionML.getColonia().getIdColonia()));
+
+       // entityManager.persist(direccionJPA);
+      //  entityManager.flush();
+
+      //  direccionML.setIdDireccion(direccionJPA.getIdDireccion());
+    //    result.object = direccionML;
+      //  result.correct = true;
 
     } catch (Exception ex) {
         result.correct = false;
@@ -103,14 +115,47 @@ public class DireccionJPADAOImplementation implements IDireccionJPADAO {
     @Transactional
 @Override
 public Result Update(com.digis01.DRosasAguilarDamianNCapasProject.ML.Direccion direccionML) {
-    Result result = new Result();
-    try {
+     Result result = new Result();
+     try {
+        // 1) Cargar la dirección actual (managed)
+        com.digis01.DRosasAguilarDamianNCapasProject.JPA.Direccion direccionBD =
+            entityManager.find(
+                com.digis01.DRosasAguilarDamianNCapasProject.JPA.Direccion.class,
+                direccionML.getIdDireccion()
+            );
+
+        if (direccionBD == null) {
+            result.correct = false;
+            result.errorMessage = "No existe la dirección con Id " + direccionML.getIdDireccion();
+            return result;
+        }
+
+        // 2) Construir el detached desde ML (campos simples)
         com.digis01.DRosasAguilarDamianNCapasProject.JPA.Direccion direccionJPA =
             new com.digis01.DRosasAguilarDamianNCapasProject.JPA.Direccion(direccionML);
 
+        // 3) Forzar UPDATE, no INSERT
+        direccionJPA.setIdDireccion(direccionML.getIdDireccion());
+
+        // 4) Asociaciones:
+        //    - Usuario: conservar SIEMPRE el que ya tiene en BD (no dependas del ML)
+        direccionJPA.setUsuario(direccionBD.getUsuario());
+
+        //    - Colonia: si viene en ML, referenciar; si no, conservar la actual
+        if (direccionML.getColonia() != null && direccionML.getColonia().getIdColonia() > 0) {
+            direccionJPA.setColonia(
+                entityManager.getReference(
+                    com.digis01.DRosasAguilarDamianNCapasProject.JPA.Colonia.class,
+                    direccionML.getColonia().getIdColonia()
+                )
+            );
+        } else {
+            direccionJPA.setColonia(direccionBD.getColonia());
+        }
+
+        // 5) Persistir
         entityManager.merge(direccionJPA);
-        // opcional, si necesitas confirmar que persista antes de salir:
-         entityManager.flush();
+        entityManager.flush();
 
         result.correct = true;
     } catch (Exception ex) {

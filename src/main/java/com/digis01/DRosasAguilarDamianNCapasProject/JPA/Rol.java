@@ -20,9 +20,18 @@ public class Rol {
     @Column(name = "nombre", nullable = false)
     private String Nombre;
 
+    
+    
     public Rol() {
     }
 
+    public Rol(com.digis01.DRosasAguilarDamianNCapasProject.ML.Rol rolML) {
+    if (rolML != null) {
+        this.IdRol = rolML.getIdRol();   
+        this.Nombre = rolML.getNombre();
+    }
+}
+    
     public Rol(int IdRol, String Nombre) {
         this.IdRol = IdRol;
         this.Nombre = Nombre;
