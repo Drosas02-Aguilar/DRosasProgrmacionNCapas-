@@ -64,6 +64,7 @@
                                     <th>Usuario</th>
                                     <th>Datos de contacto</th>
                                     <th>Direcciones</th>
+                                    <th>Estatus</th>
                                 </tr>
                             </thead>
                             <tbody class="text-center">
@@ -168,6 +169,17 @@
                                             <span class="text-danger">No tiene dirección</span>
                                         </div>
                                     </td>
+                                    <td class="text-center">
+                                        <div class="form-check form-switch d-inline-flex align-items-center gap-2">
+                                            <input class="form-check-input js-status-toggle"
+                                                   type="checkbox" role="switch"
+                                                   th:data-id="${usuario.idUsuario}"
+                                                   th:checked="${usuario.status == 1}">
+                                            <span class="badge"
+                                                  th:text="${usuario.status == 1 ? 'Activo' : 'Inactivo'}"
+                                                  th:classappend="${usuario.status == 1 ? ' bg-success' : ' bg-secondary'}">Activo</span>
+                                        </div>
+                                    </td>
                                 </tr>
 
                                 <!-- Empty state -->
@@ -188,5 +200,60 @@
             </div>
 
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+            <script>
+                                               $(document).on('change', '.js-status-toggle', function () {
+                                                   const $input = $(this);
+                                                   const id = $input.data('id');
+                                                   const intentoActivo = $input.is(':checked');
+
+                                                   const $cell = $input.closest('.form-switch');
+                                                   const $badge = $cell.find('.badge').first();
+                                                   const $row = $input.closest('tr');
+
+                                                   // CSRF (Spring Security) — opcional
+                                                   const token = $('meta[name="_csrf"]').attr('content');
+                                                   const header = $('meta[name="_csrf_header"]').attr('content');
+
+                                                   $input.prop('disabled', true);
+
+                                                   $.ajax({
+                                                       url: `/usuario/${id}/status`,
+                                                       type: 'PATCH',
+                                                       data: {activo: intentoActivo},
+                                                       beforeSend: function (xhr) {
+                                                           xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                                                           if (token && header)
+                                                               xhr.setRequestHeader(header, token);
+                                                       }
+                                                   })
+                                                           .done(function (j) {
+                                                               if (!j || j.ok !== true) {
+                                                                   throw new Error((j && j.msg) || 'No se pudo actualizar');
+                                                               }
+
+                                                               // Usa lo que confirma el servidor
+                                                               const activoServer = !!j.activo;
+                                                               $input.prop('checked', activoServer);
+
+                                                               if ($badge.length) {
+                                                                   $badge
+                                                                           .text(activoServer ? 'Activo' : 'Inactivo')
+                                                                           .toggleClass('bg-success', activoServer)
+                                                                           .toggleClass('bg-secondary', !activoServer);
+                                                               }
+                                                               $row.toggleClass('table-secondary', !activoServer);
+                                                           })
+                                                           .fail(function (xhr) {
+                                                               $input.prop('checked', !intentoActivo); // revertir si falla
+                                                               alert('Error al cambiar estatus: ' + (xhr.responseText || xhr.statusText));
+                                                           })
+                                                           .always(function () {
+                                                               $input.prop('disabled', false);
+                                                           });
+                                               });
+            </script>
+
+
     </body>
 </html>

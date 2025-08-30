@@ -174,4 +174,30 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPADAO {
 
         return result;
     }
+
+    @Transactional
+    @Override
+    public Result SetActivo(int idUsuario, boolean activo, String usuarioBaja) {
+        Result result = new Result();
+        try {
+            entityManager.createQuery(
+                "UPDATE Usuario u " +
+                "SET u.Status = :a, " +
+                "    u.FechaBaja = CASE WHEN :a=0 THEN CURRENT_TIMESTAMP ELSE NULL END, " +
+                "    u.UsuarioBaja = CASE WHEN :a=0 THEN :ub ELSE NULL END " +
+                "WHERE u.IdUsuario = :id")
+            .setParameter("a", activo ? 1 : 0)
+            .setParameter("ub", usuarioBaja)
+            .setParameter("id", idUsuario)
+            .executeUpdate();
+
+            result.correct = true;
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getMessage();
+            result.ex = ex;
+        }
+        return result;
+    }
+    
 }

@@ -31,6 +31,17 @@ public class Usuario {
     public List<Direccion> direcciones;
     private String Imagen;
 
+    private Integer Status = 1;
+    
+
+    public Integer getStatus() {
+        return Status;
+    }
+
+    public void setStatus(Integer status) {
+        this.Status = status;
+    }
+
     public Usuario() {
         this.direcciones = new ArrayList<>();
     }
@@ -53,6 +64,7 @@ public class Usuario {
         this.Curp = usuarioJPA.getCurp();
         this.Tiposangre = usuarioJPA.getTiposangre();
         this.Imagen = usuarioJPA.getImagen();
+        this.Status = usuarioJPA.getStatus();
         this.Rol = new Rol();
         this.Rol.setIdRol(usuarioJPA.Rol.getIdRol());
         this.Rol.setNombre(usuarioJPA.getRol().getNombre());

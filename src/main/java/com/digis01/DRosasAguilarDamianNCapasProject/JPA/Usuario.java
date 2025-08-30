@@ -19,13 +19,16 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Pattern;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.annotations.SQLDelete;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name = "USUARIO")
+@SQLDelete(sql = "UPDATE USUARIO SET STATUS = 0, FECHA_BAJA=SYSTIMESTAMP WHERE IDUSUARIO=?")
 public class Usuario {
 
     @Id
@@ -86,10 +89,19 @@ public List<Direccion> direcciones = new ArrayList<>();
     @Column(name = "imagen")
     private String Imagen;
     
+    @Column(name = "status", nullable = false)
+    private Integer Status = 1;
+    
+    @Column(name = "fecha_baja")
+    private java.time.LocalDateTime FechaBaja;
+    
+    @Column(name = "usuario_baja")
+    private String UsuarioBaja;
     
     public Usuario() {
         this.direcciones = new ArrayList<>();
     }
+    
     
     public Usuario (com.digis01.DRosasAguilarDamianNCapasProject.ML.Usuario usuarioML){
         this.Nombre = usuarioML.getNombre();
@@ -107,6 +119,7 @@ public List<Direccion> direcciones = new ArrayList<>();
         this.Curp = usuarioML.getCurp();
         this.Tiposangre = usuarioML.getTiposangre();
         this.Imagen = usuarioML.getImagen();
+        this.Status = usuarioML.getStatus();
          this.Rol = new Rol();
     if (usuarioML.Rol != null) {
         this.Rol.setIdRol(usuarioML.Rol.getIdRol());
@@ -213,6 +226,35 @@ public List<Direccion> direcciones = new ArrayList<>();
         this.Apellidopaterno = Apellidopaterno;
         this.Apellidomaterno = Apellidomaterno;
         this.Rol = Rol;
+    }
+
+    public Integer getStatus() {
+        return Status;
+    }
+
+    public void setStatus(Integer Status) {
+        this.Status = Status;
+    }
+
+    public LocalDateTime getFechaBaja() {
+        return FechaBaja;
+    }
+
+    public void setFechaBaja(LocalDateTime FechaBaja) {
+        this.FechaBaja = FechaBaja;
+    }
+
+    public String getUsuarioBaja() {
+        return UsuarioBaja;
+    }
+
+    public void setUsuarioBaja(String UsuarioBaja) {
+        this.UsuarioBaja = UsuarioBaja;
+    }
+
+    public Usuario(LocalDateTime FechaBaja, String UsuarioBaja) {
+        this.FechaBaja = FechaBaja;
+        this.UsuarioBaja = UsuarioBaja;
     }
 
 
