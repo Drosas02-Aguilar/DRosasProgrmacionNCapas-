@@ -118,6 +118,10 @@ public class UsuarioController {
     private PaisJPADAOImplementation paisJPADAOImplementation;
     @Autowired
     private RolJPADAOImplementation rolJPADAOImplementation;
+    
+    // ============= STATUS ================== //
+    @Autowired
+    private IUsuarioJPADAO usuarioJPADAO;
 
     // ========================= LISTADO =========================
     @GetMapping
@@ -871,8 +875,7 @@ public class UsuarioController {
         return errores;
     }
 
-    @Autowired
-    private IUsuarioJPADAO usuarioJPADAO; // <— cambia el tipo a la interfaz
+
 
     @PatchMapping("{id}/status")
     @ResponseBody
