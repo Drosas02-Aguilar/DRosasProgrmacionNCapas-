@@ -131,7 +131,7 @@
 
                     <!-- Carga masiva -->
                     <li class="nav-item">
-                        <a class="nav-link" href="/usuario/cargamasiva">
+                        <a sec:authorize="hasRole('ADMIN')" class="nav-link" href="/usuario/cargamasiva">
                             <i class="bi bi-cloud-arrow-up"></i> Carga masiva
                         </a>
                     </li>

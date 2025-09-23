@@ -66,8 +66,8 @@ public class Usuario {
     @Column(name = "sexo", nullable = false)
     private String Sexo;
     
-    @Column(name = "tiposangre")
-    private String Tiposangre;
+//    @Column(name = "tiposangre")
+//    private String Tiposangre;
     
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
@@ -117,7 +117,7 @@ public List<Direccion> direcciones = new ArrayList<>();
         this.Telefono = usuarioML.getTelefono();
         this.Celular = usuarioML.getCelular();
         this.Curp = usuarioML.getCurp();
-        this.Tiposangre = usuarioML.getTiposangre();
+//        this.Tiposangre = usuarioML.getTiposangre();
         this.Imagen = usuarioML.getImagen();
         this.Status = usuarioML.getStatus();
          this.Rol = new Rol();
@@ -163,7 +163,7 @@ public List<Direccion> direcciones = new ArrayList<>();
       //  this.Direccion = direccion;
         this.Celular = celular;
         this.Sexo = sexo;
-        this.Tiposangre = tiposangre;
+//        this.Tiposangre = tiposangre;
         this.FechaNacimiento = fechaNacimiento;
         this.direcciones = new ArrayList<>();
     }
@@ -207,8 +207,8 @@ public List<Direccion> direcciones = new ArrayList<>();
     public String getSexo() { return Sexo; }
     public void setSexo(String sexo) { Sexo = sexo; }
 
-    public String getTiposangre() { return Tiposangre; }
-    public void setTiposangre(String tiposangre) { Tiposangre = tiposangre; }
+//    public String getTiposangre() { return Tiposangre; }
+//    public void setTiposangre(String tiposangre) { Tiposangre = tiposangre; }
 
     public Date getFechaNacimiento() { return FechaNacimiento; }
     public void setFechaNacimiento(Date FechaNacimiento) { this.FechaNacimiento = FechaNacimiento; }

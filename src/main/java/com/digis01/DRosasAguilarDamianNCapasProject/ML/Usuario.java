@@ -24,7 +24,7 @@ public class Usuario {
     // private String Direccion;
     private String Celular;
     private String Sexo;
-    private String Tiposangre;
+//    private String Tiposangre;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date FechaNacimiento;
     public Rol Rol;
@@ -62,7 +62,7 @@ public class Usuario {
         this.Telefono = usuarioJPA.getTelefono();
         this.Celular = usuarioJPA.getCelular();
         this.Curp = usuarioJPA.getCurp();
-        this.Tiposangre = usuarioJPA.getTiposangre();
+//        this.Tiposangre = usuarioJPA.getTiposangre();
         this.Imagen = usuarioJPA.getImagen();
         this.Status = usuarioJPA.getStatus();
         this.Rol = new Rol();
@@ -134,7 +134,7 @@ public class Usuario {
         // this.Direccion = direccion;
         this.Celular = celular;
         this.Sexo = sexo;
-        this.Tiposangre = tiposangre;
+//        this.Tiposangre = tiposangre;
         this.FechaNacimiento = fechaNacimiento;
         this.direcciones = new ArrayList<>();
     }
@@ -246,13 +246,13 @@ public class Usuario {
         Sexo = sexo;
     }
 
-    public String getTiposangre() {
-        return Tiposangre;
-    }
-
-    public void setTiposangre(String tiposangre) {
-        Tiposangre = tiposangre;
-    }
+//    public String getTiposangre() {
+//        return Tiposangre;
+//    }
+//
+//    public void setTiposangre(String tiposangre) {
+//        Tiposangre = tiposangre;
+//    }
 
     public Date getFechaNacimiento() {
         return FechaNacimiento;

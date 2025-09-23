@@ -123,6 +123,18 @@ public class UsuarioController {
     @Autowired
     private IUsuarioJPADAO usuarioJPADAO;
 
+    
+     @GetMapping("/login")
+    public String login() {
+        return "login"; 
+    }
+    
+      @GetMapping("/403")
+    public String accesoDenegado(){
+        return "403"; // templates/403.html
+    }
+    
+    
     // ========================= LISTADO =========================
     @GetMapping
     public String Index(Model model) {
@@ -596,7 +608,6 @@ public class UsuarioController {
                 usuario.setTelefono(campos[8]);
                 usuario.setCelular(campos[9]);
                 usuario.setCurp(campos[10]);
-                usuario.setTiposangre(campos[11]);
 
                 // Rol
                 Rol rol = new Rol();
@@ -684,7 +695,6 @@ public class UsuarioController {
                 usuario.setTelefono(fmt.formatCellValue(row.getCell(8)));
                 usuario.setCelular(fmt.formatCellValue(row.getCell(9)));
                 usuario.setCurp(fmt.formatCellValue(row.getCell(10)));
-                usuario.setTiposangre(fmt.formatCellValue(row.getCell(11)));
 
                 // Rol (col 12)
                 Rol rol = new Rol();
