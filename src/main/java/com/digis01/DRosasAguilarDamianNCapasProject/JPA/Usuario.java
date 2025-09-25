@@ -28,7 +28,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name = "USUARIO")
-@SQLDelete(sql = "UPDATE USUARIO SET STATUS = 0, FECHA_BAJA=SYSTIMESTAMP WHERE IDUSUARIO=?")
 public class Usuario {
 
     @Id
@@ -37,7 +36,7 @@ public class Usuario {
     private int IdUsuario;
     
     @Column(name = "username", nullable  = false)
-    private String Username;
+    private String username;
     
     @Column(name = "nombre", nullable = false)
     private String Nombre;
@@ -51,7 +50,7 @@ public class Usuario {
     @Column (name = "email", nullable = false)
     private String Email;
     
-    @Column (name = "password", nullable = false)
+    @Column (name = "password")
     private String Password;
     
     @Column (name = "telefono", nullable = false)
@@ -107,7 +106,7 @@ public List<Direccion> direcciones = new ArrayList<>();
         this.Nombre = usuarioML.getNombre();
         this.Apellidopaterno = usuarioML.getApellidopaterno();
         this.Apellidomaterno = usuarioML.getApellidomaterno();
-        this.Username = usuarioML.getUsername();
+        this.username = usuarioML.getUsername();
         this.Email = usuarioML.getEmail();
         this.Password = usuarioML.getPassword();
         this.Telefono = usuarioML.getTelefono();
@@ -152,7 +151,7 @@ public List<Direccion> direcciones = new ArrayList<>();
                    String email, String password, String telefono, String direccion, String celular, String sexo,
                    String tiposangre, Date fechaNacimiento, int idrol, String curp) {
         this.IdUsuario = idUsuario;
-        this.Username = username;
+        this.username = username;
         this.Nombre = nombre;
         this.Apellidopaterno = apellidopaterno;
         this.Apellidomaterno = apellidomaterno;
@@ -180,8 +179,8 @@ public List<Direccion> direcciones = new ArrayList<>();
     public String getNombre() { return Nombre; }
     public void setNombre(String nombre) { Nombre = nombre; }
 
-    public String getUsername() { return Username; }
-    public void setUsername(String username) { Username = username; }
+    public String getUsername() { return username; }
+    public void setUsername(String username ) {this.username = username; }
 
     public String getApellidopaterno() { return Apellidopaterno; }
     public void setApellidopaterno(String apellidopaterno) { Apellidopaterno = apellidopaterno; }

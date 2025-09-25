@@ -178,9 +178,10 @@ public class Usuario {
         return Username;
     }
 
-    public void setUsername(String username) {
-        Username = username;
+    public void setUsername(String Username) {
+        this.Username = Username;
     }
+    
 
     public String getApellidopaterno() {
         return Apellidopaterno;

@@ -118,23 +118,21 @@ public class UsuarioController {
     private PaisJPADAOImplementation paisJPADAOImplementation;
     @Autowired
     private RolJPADAOImplementation rolJPADAOImplementation;
-    
+
     // ============= STATUS ================== //
     @Autowired
     private IUsuarioJPADAO usuarioJPADAO;
 
-    
-     @GetMapping("/login")
+    @GetMapping("/login")
     public String login() {
-        return "login"; 
+        return "login";
     }
-    
-      @GetMapping("/403")
-    public String accesoDenegado(){
+
+    @GetMapping("/403")
+    public String accesoDenegado() {
         return "403"; // templates/403.html
     }
-    
-    
+
     // ========================= LISTADO =========================
     @GetMapping
     public String Index(Model model) {
@@ -885,20 +883,22 @@ public class UsuarioController {
         return errores;
     }
 
-
-
-    @PatchMapping("{id}/status")
+    @PatchMapping("/{id}/status")
     @ResponseBody
-    public java.util.Map<String, Object> toggleStatus(@PathVariable int id,
-            @RequestParam boolean activo,
+    public Map<String, Object> toggleStatus(
+            @PathVariable int id,
+            @RequestBody Map<String, Object> body,
             java.security.Principal principal) {
+
+        boolean activo = Boolean.parseBoolean(String.valueOf(body.get("activo")));
         String ub = (principal != null) ? principal.getName() : "system";
+
         Result r = usuarioJPADAO.SetActivo(id, activo, ub);
 
-        java.util.Map<String, Object> resp = new java.util.LinkedHashMap<>();
+        Map<String, Object> resp = new LinkedHashMap<>();
         resp.put("ok", r.correct);
         resp.put("activo", activo);
-        resp.put("msg", r.errorMessage); // puede ser null y no truena
+        resp.put("msg", r.errorMessage);
         return resp;
     }
 
